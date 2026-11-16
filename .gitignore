@@ -1,0 +1,11 @@
+_dev/
+films/
+node_modules/
+__pycache__/
+.venv/
+venv-voice/
+kit/tier.json
+render/
+out/
+qa/frames/
+*.pyc

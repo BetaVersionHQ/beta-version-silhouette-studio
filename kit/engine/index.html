@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Beta Version Silhouette Studio</title>
+<style>
+@font-face { font-family: Caveat; src: url(node_modules/@fontsource/caveat/files/caveat-latin-400-normal.woff2); }
+@font-face { font-family: Hand; src: url(node_modules/@fontsource/patrick-hand/files/patrick-hand-latin-400-normal.woff2); }
+@font-face { font-family: Inter; font-weight: 400; src: url(node_modules/@fontsource/inter/files/inter-latin-400-normal.woff2); }
+@font-face { font-family: Inter; font-weight: 600; src: url(node_modules/@fontsource/inter/files/inter-latin-600-normal.woff2); }
+html, body { margin: 0; overflow: hidden; background: #000; font-family: Inter, sans-serif; }
+#stage { position: absolute; inset: 0; }
+canvas { display: block; }
+.ov { position: absolute; inset: 0; pointer-events: none; }
+/* the vignette, grain, fades and the Beta Version watermark are drawn into the WebGL frame by js/main.js */
+.hide { display: none !important; }
+/* speech captions near the speaker; narration as a soft subtitle */
+.cap { position: absolute; white-space: normal; max-width: 640px; text-align: center; line-height: 1.08; opacity: 0;
+  transform: translate(-50%, -100%); padding: 8px 30px; font: 36px Hand, sans-serif; color: #fff; text-shadow: 0 0 10px rgba(0,0,0,.9);
+  background: radial-gradient(ellipse at center, rgba(10,10,14,.68) 0%, rgba(10,10,14,.38) 55%, rgba(0,0,0,0) 75%); }
+.cap.f { font: 40px Caveat, cursive; color: #ffe6da; }
+.cap.kid { font: 38px Caveat, cursive; color: #fff3c8; }
+#sub { position: absolute; left: 50%; bottom: 44px; transform: translateX(-50%); font: 33px Hand, sans-serif; color: #fff;
+  text-shadow: 0 0 10px #000, 0 0 4px #000; opacity: 0; white-space: normal; width: 1040px; text-align: center; }
+#sub.phone::before { content: '\260E  '; font-size: 26px; opacity: .8; }
+#sub.narr { font: italic 400 25px Inter; letter-spacing: .3px; color: #f1ece4; bottom: 52px; width: 980px; line-height: 1.35; }
+#chip { position: absolute; left: 56px; bottom: 44px; font: 600 14px Inter; letter-spacing: 4px; color: #fff; opacity: 0; text-shadow: 0 2px 8px rgba(0,0,0,.6); }
+/* paper / note / ticket / letter overlays */
+#paper { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(-1.5deg); opacity: 0; z-index: 8;
+  background: #f4eedf; color: #2a2620; border-radius: 6px; box-shadow: 0 20px 70px rgba(0,0,0,.7); padding: 34px 44px; width: 560px; font: 400 18px Inter; line-height: 1.5; }
+#paper .hd { font: 600 13px Inter; letter-spacing: 3px; color: #8a7d68; margin-bottom: 14px; }
+#paper .big { font: 600 26px Inter; margin: 6px 0 10px; }
+#paper .hand { font: 34px Caveat, cursive; line-height: 1.2; color: #24304a; }
+#paper .sm { font: 400 14px Inter; color: #6a6052; }
+#paper.ticket { width: 520px; background: #fffaf0; border-left: 10px dashed #d8cfbd; }
+#paperBg { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%, rgba(0,0,0,.35), rgba(0,0,0,.85)); opacity: 0; z-index: 7; }
+/* phone: video call / messages */
+#phone { z-index: 10; position: absolute; left: 50%; top: 50%; width: 330px; height: 640px; margin: -320px 0 0 -165px; border-radius: 44px;
+  background: #0b0c10; box-shadow: 0 0 0 3px #2a2c33, 0 30px 80px rgba(0,0,0,.7); opacity: 0; }
+#phone .scr { position: absolute; inset: 12px; border-radius: 34px; background: #111; overflow: hidden; color: #fff; }
+#phone .who { position: absolute; top: 40px; left: 0; right: 0; text-align: center; font: 600 18px Inter; }
+#phone .st { position: absolute; top: 66px; left: 0; right: 0; text-align: center; font: 400 13px Inter; color: #aab; }
+#phone .av { position: absolute; left: 50%; top: 200px; width: 150px; height: 150px; margin-left: -75px; border-radius: 50%; display: grid; place-items: center; font: 600 56px Inter; }
+#phone .btnrow { position: absolute; bottom: 60px; left: 0; right: 0; display: flex; justify-content: center; gap: 70px; }
+#phone .cb { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; font: 600 24px Inter; }
+.card { position: absolute; inset: 0; display: grid; place-items: center; background: transparent; opacity: 0; }
+.card .inner { text-align: center; color: #e9ecf3; }
+.card .ttl { font: 400 74px Caveat, cursive; letter-spacing: 1px; color: #f4efe6; text-shadow: 0 0 30px rgba(255,220,170,.25); }
+.card .tag { margin-top: 12px; font: 28px Hand; color: #b7c0d6; letter-spacing: 1px; }
+.card .meta { margin-top: 10px; font: 400 14px Inter; color: #7e879c; letter-spacing: 4px; }
+.card .credit { position: absolute; left: 0; right: 0; bottom: 46px; text-align: center; font: 600 13px Inter; letter-spacing: 3px; color: #8e95aa; }
+.card .credit img { height: 22px; vertical-align: middle; margin-right: 10px; }
+.card .made { margin-top: 46px; font: 600 15px Inter; letter-spacing: 3px; color: #c9d2e6; }
+.card .made img { display: block; margin: 12px auto 0; width: 300px; }
+#phone .lock { position: absolute; top: 96px; left: 0; right: 0; text-align: center; }
+#phone .lock img { width: 46px; opacity: .9; }
+/* 9:16 shorts: narrower captions, subtitles and chip above the platform buttons, smaller cards */
+.short .cap { max-width: 560px; font-size: 34px; }
+.short .cap.f { font-size: 38px; } .short .cap.kid { font-size: 36px; }
+.short #sub { width: 620px; bottom: 300px; font-size: 32px; }
+.short #sub.narr { width: 600px; bottom: 300px; font-size: 25px; }
+.short #chip { left: 40px; top: 52px; bottom: auto; font-size: 13px; letter-spacing: 3px; }
+.short .card .ttl { font-size: 64px; max-width: 620px; margin: 0 auto; line-height: 1.05; }
+.short .card .tag { max-width: 600px; margin-left: auto; margin-right: auto; }
+.short .card .credit { bottom: 330px; }
+.short .card .made img { width: 280px; }
+</style>
+<script type="importmap">
+{ "imports": { "three": "./node_modules/three/build/three.module.js", "three/addons/": "./node_modules/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<div id="stage"></div>
+<div class="ov" id="hud"><div id="chip"></div><div class="cap" id="cap"></div></div>
+<div id="paperBg" class="ov"></div><div id="paper"></div>
+<div id="phone"><div class="scr"><div class="lock"><img id="phMark" alt=""></div><div class="who" id="phWho"></div><div class="st" id="phSt"></div><div class="av" id="phAv"></div>
+  <div class="btnrow"><div class="cb" style="background:#e04848">&#10005;</div></div></div></div>
+<div class="card" id="titleCard"><div class="inner"><div class="ttl" id="tTitle"></div><div class="tag" id="tTag"></div></div>
+  <div class="credit"><img id="tMark" alt="">BETA VERSION SILHOUETTE STUDIO</div></div>
+<div class="card" id="endCard"><div class="inner"><div class="tag" id="eLine" style="font-size:38px;color:#e9ecf3"></div>
+  <div class="meta" id="eMeta" style="margin-top:22px"></div>
+  <div class="made">MADE WITH BETA VERSION SILHOUETTE STUDIO<img id="eMark" alt="Beta Version"></div></div></div>
+<div id="sub"></div>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
