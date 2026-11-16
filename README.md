@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/hero.gif" alt="The same scene rendered as a 16:9 film and a 9:16 short" width="100%">
+<img src="docs/hero.gif" alt="The three sets (living room, motel at night, laundromat) and a 9:16 short" width="100%">
 
 # Beta Version Silhouette Studio
 
@@ -15,6 +15,14 @@
 ### **📣 Like it? Follow [@beta_versionhq on Instagram](https://www.instagram.com/beta_versionhq/) and subscribe on [YouTube @BetaVersion_HQ](https://www.youtube.com/@BetaVersion_HQ) for new tools and updates.**
 
 </div>
+
+---
+
+## 🎬 See it in action
+
+https://github.com/user-attachments/assets/de534182-9b27-41af-b979-00cb8f546e03
+
+<div align="center"><sub>Every clip above was made with this kit: the two starter films, Kokoro voices, rendered on a laptop GPU.</sub></div>
 
 ---
 
