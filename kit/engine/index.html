@@ -15,7 +15,7 @@ canvas { display: block; }
 /* the vignette, grain, fades and the Beta Version watermark are drawn into the WebGL frame by js/main.js */
 .hide { display: none !important; }
 /* speech captions near the speaker; narration as a soft subtitle */
-.cap { position: absolute; white-space: normal; max-width: 640px; text-align: center; line-height: 1.08; opacity: 0;
+.cap { position: absolute; white-space: normal; width: max-content; max-width: 640px; text-align: center; line-height: 1.08; opacity: 0;
   transform: translate(-50%, -100%); padding: 8px 30px; font: 36px Hand, sans-serif; color: #fff; text-shadow: 0 0 10px rgba(0,0,0,.9);
   background: radial-gradient(ellipse at center, rgba(10,10,14,.68) 0%, rgba(10,10,14,.38) 55%, rgba(0,0,0,0) 75%); }
 .cap.f { font: 40px Caveat, cursive; color: #ffe6da; }
@@ -43,6 +43,14 @@ canvas { display: block; }
 #phone .av { position: absolute; left: 50%; top: 200px; width: 150px; height: 150px; margin-left: -75px; border-radius: 50%; display: grid; place-items: center; font: 600 56px Inter; }
 #phone .btnrow { position: absolute; bottom: 60px; left: 0; right: 0; display: flex; justify-content: center; gap: 70px; }
 #phone .cb { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; font: 600 24px Inter; }
+/* shadow-self lines: red, with a faint red glow */
+.cap.shadow { font: 36px Hand, sans-serif; color: #ff5468; text-shadow: 0 0 12px rgba(0,0,0,.95), 0 0 18px rgba(255,40,70,.45); }
+#sub.shadow { color: #ff5468; text-shadow: 0 0 10px #000, 0 0 16px rgba(255,40,70,.45); }
+/* opening card: one narration line on black, one keyword in colour */
+#openCard .inner { max-width: 1000px; padding: 0 40px; }
+#oText { font: 44px Hand, sans-serif; color: #ece6dc; line-height: 1.25; opacity: 0; }
+#oText .key { text-shadow: 0 0 18px currentColor; }
+.short #openCard .inner { max-width: 620px; } .short #oText { font-size: 42px; }
 .card { position: absolute; inset: 0; display: grid; place-items: center; background: transparent; opacity: 0; }
 .card .inner { text-align: center; color: #e9ecf3; }
 .card .ttl { font: 400 74px Caveat, cursive; letter-spacing: 1px; color: #f4efe6; text-shadow: 0 0 30px rgba(255,220,170,.25); }
@@ -80,6 +88,7 @@ canvas { display: block; }
 <div class="card" id="endCard"><div class="inner"><div class="tag" id="eLine" style="font-size:38px;color:#e9ecf3"></div>
   <div class="meta" id="eMeta" style="margin-top:22px"></div>
   <div class="made">MADE WITH BETA VERSION SILHOUETTE STUDIO<img id="eMark" alt="Beta Version"></div></div></div>
+<div class="card" id="openCard"><div class="inner"><div id="oText"></div></div></div>
 <div id="sub"></div>
 <script type="module" src="js/main.js"></script>
 </body>

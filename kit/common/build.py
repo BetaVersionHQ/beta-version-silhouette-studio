@@ -8,9 +8,13 @@ Run it twice in a film's life:
 story.py contract:
   TITLE, YEAR, CHARS = {id: "Name, age, sex, role, voice, accent, personality"}
   optional KOKORO = {id: "af_heart"} or {id: ["am_michael", 0.95]}  (voice id, speed) -> copied into vo/lines.json as "kokoro"
-  S = [(scene_name, set_name or None, chip or None, stretch, [items...]), ...]   (scene 'title' / 'endcard' = the cards)
+  S = [(scene_name, set_name or None, chip or None, stretch, [items...]), ...]   (scene 'title' / 'endcard' / 'opening' = the cards)
   items: ('beat', seconds) ('mark', name) ('sfx', name) ('line', who, text, emotion, voice)
   A voice ending in "_phone" (e.g. 'ana_phone') is the same character through a phone filter in the mix; 'narr' is narration.
+  optional LOOKS = {id: 'black' | 'white' | 'shadow'}: overrides film.json "look" for one figure; 'shadow' is the shadow self
+    (black with a red rim glow, red captions)
+  optional OPENING = {'text': "Every night ended the same way.", 'key': 'same way', 'color': '#ff9a3c'} with a first scene
+    ('opening', None, None, 1.0, [B(3.2)]): the line on black, the keyword in colour, then the next scene fades in
 
 Formats (film.json "format"): "long" = 16:9 1280x720, at most 5 minutes; "short" = 9:16 720x1280, at most 2 minutes.
 Timing: a beat lasts seconds * stretch; a line lasts its real wav duration (or an estimate) plus a 0.25 s gap.
@@ -69,8 +73,16 @@ if t > CAP[FMT]:
     raise SystemExit(f'REFUSED: this story runs {t:.1f} s; a "{FMT}" film is at most {CAP[FMT]:.0f} s '
                      f'({"16:9, 5 min" if FMT == "long" else "9:16, 2 min"}). Cut beats or lines, or split it into parts.')
 
+LOOKS = getattr(st, 'LOOKS', {}) or {}
+bad = {k: v for k, v in LOOKS.items() if v not in ('black', 'white', 'shadow')}
+if bad: raise SystemExit(f'LOOKS: unknown look {bad} (use black, white or shadow)')
+if FILM.get('look', 'black') not in ('black', 'white'): raise SystemExit('film.json "look" must be "black" or "white"')
+OPENING = getattr(st, 'OPENING', None)
+if any(s['name'] == 'opening' for s in scenes) and not (OPENING and OPENING.get('text')):
+    raise SystemExit("an 'opening' scene needs OPENING = {'text': ..., 'key': ..., 'color': ...} in story.py")
 tl = {'format': FMT, 'scenes': scenes, 'lines': [{k: v for k, v in l.items() if k != '_emo'} for l in lines], 'marks': marks,
-      'sfx': sfx, 'end': round(t, 3)}
+      'sfx': sfx, 'end': round(t, 3), 'looks': LOOKS}
+if OPENING: tl['opening'] = {'text': OPENING['text'], 'key': OPENING.get('key', ''), 'color': OPENING.get('color', '#ff9a3c')}
 with open(os.path.join(FD, 'timeline.json'), 'w', encoding='utf-8') as f: json.dump(tl, f, indent=1)
 with open(os.path.join(FD, 'calendar.json'), 'w', encoding='utf-8') as f:
     json.dump({'year': st.YEAR, 'scenes': [{'name': s['name'], 'chip': s['chip'], 'start': s['start']} for s in scenes], 'refs': []}, f, indent=1)

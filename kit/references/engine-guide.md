@@ -42,8 +42,25 @@ plate on light ones, never stretched or recoloured. The corner watermark
 is drawn into every frame by `main.js` and the camera search keeps heads out from under it.
 
 ## Figures
-Black capsule figures with big heads, glowing eyes and a rim light. Women: `bun` or `ponytail`. Children: `s` 0.6-0.75.
+Capsule figures with big heads, a rim and eyes. Women: `bun` or `ponytail`. Children: `s` 0.6-0.75.
 IK arms: `ikW(f, side, worldPoint, pole)` with pole vectors pointing down and out.
+
+### Looks (js/looks.js)
+- `film.json` `"look"`: `black` (default: dark body, light rim, glowing eyes) or `white` (off-white body with a soft dark rim,
+  dark dot eyes and a brow stroke over each eye). `story.py` `LOOKS = {who: 'black' | 'white' | 'shadow'}` overrides one
+  figure; `ST.fig(name, ...)` picks the material from `lookOf(name)`, so set code is the same for every look.
+- `shadow`: the shadow self, a near-black body with a red rim and red eyes; its lines get the red caption and subtitle style.
+  Add it like any figure: `F.shadow = F.shadow || ST.fig('shadow', 0xff3048, { s: 1.0 }, 1.0)`, and add it to `only(...)`,
+  `dialogueCuts` actors and the `heads` map.
+- Expressions: set `A.brow` (-1 angry .. 0 .. 1 worried/sad) and `A.lid` (0 open .. 1 heavy) on the Actor before
+  `A.update(t)`, every frame. `blink()` hands them to `f.face`, which tilts and lifts the brows and lowers the lids.
+- `updateLooks(scene, figs)` runs after each `render()`: every white figure takes its key from the strongest visible point
+  or spot light near its head (so it is lit by the lamp it stands under), and in a white film the room is darkened once
+  (wall and furniture colours x0.4; brand pieces, figures and emissive or basic materials untouched) and the fill lights
+  (hemisphere, ambient, directional) run at 25 %. Give a white-look set its practicals (lamps, windows, screens) as point or
+  spot lights; that is what makes the warm pools.
+- Opening card: `OPENING = {text, key, color}` in `story.py` and an `'opening'` scene (no set) show the line on black with
+  the keyword in colour, fading in and out; captions skip it.
 
 ## Actor scripts (stage.js)
 ```js

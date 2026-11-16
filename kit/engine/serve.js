@@ -52,7 +52,8 @@ async function launch(opts = {}) {
 async function openFilm(film, opts = {}) {
   const info = filmInfo(film), { srv, port } = await startServer(film, opts.port);
   const { browser, how } = await launch(opts);
-  const page = await browser.newPage({ viewport: { width: info.width, height: info.height } });
+  // SS_SCALE=1.5 draws the same 1280x720 layout at 1920x1080 (sharper footage; QA always runs at 1)
+  const page = await browser.newPage({ viewport: { width: info.width, height: info.height }, deviceScaleFactor: +process.env.SS_SCALE || 1 });
   const errors = [];
   page.on('pageerror', e => { errors.push(e.message); if (!opts.quiet) console.log('pageerror:', e.message); });
   page.on('console', m => { const x = m.text(); if (/module failed|Error/.test(x)) errors.push(x); if (opts.console && m.type() !== 'warning') console.log('console:', x); });

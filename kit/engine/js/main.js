@@ -3,6 +3,7 @@
 // and the 2D layer on top (date chip, captions, narration, paper/phone overlays, title and end cards).
 import { THREE, W, H, FILM, FORMAT, PORTRAIT, WM, TL, clamp, smooth, win, $, toScreen, bodyCaps, BRAND_IMG } from './core.js';
 import { DATA as BRAND } from './brand.js';
+import { LOOKS, updateLooks } from './looks.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
@@ -25,8 +26,9 @@ const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(W, H, 
 const rp = new RenderPass(new THREE.Scene(), new THREE.PerspectiveCamera()); composer.addPass(rp);
 const bloom = new UnrealBloomPass(new THREE.Vector2(W, H), 0.6, 0.5, 0.75); composer.addPass(bloom);
 composer.addPass(new OutputPass());
-if (AA === 'fxaa') { const fx = new ShaderPass(FXAAShader); fx.material.uniforms.resolution.value.set(1 / W, 1 / H); composer.addPass(fx); }
-if (AA === 'fxaa') bloom.setSize(W / 2, H / 2);
+const DPR = window.devicePixelRatio || 1; if (DPR !== 1) { renderer.setPixelRatio(DPR); composer.setPixelRatio(DPR); }   // SS_SCALE footage
+if (AA === 'fxaa') { const fx = new ShaderPass(FXAAShader); fx.material.uniforms.resolution.value.set(1 / (W * DPR), 1 / (H * DPR)); composer.addPass(fx); }
+if (AA === 'fxaa') bloom.setSize(W * DPR / 2, H * DPR / 2);
 
 // ---- film pass + watermark, drawn straight onto the canvas after the scene ----
 const ovScene = new THREE.Scene(), ovCam = new THREE.OrthographicCamera(0, 1, 1, 0, -1, 1);
@@ -75,7 +77,8 @@ function caption(t, cam, heads, fade) {
   const cap = $('cap'), sub = $('sub');
   sub.style.opacity = 0; cap.style.opacity = 0;
   const l = TL.lines.find(l => t >= l.start - 0.05 && t < l.start + l.dur + 0.35);
-  if (!l) return;
+  if (!l || l.scene === 'opening') return;
+  const shadow = LOOKS[l.who] === 'shadow';
   const o = smooth(l.start - 0.05, l.start + 0.2, t) * (1 - smooth(l.start + l.dur + 0.1, l.start + l.dur + 0.35, t)) * (1 - fade);
   const off = l.voice !== l.who; // narration, phone, radio, through a door
   const h = heads && heads[l.who];
@@ -84,7 +87,7 @@ function caption(t, cam, heads, fade) {
     const v = p.clone().project(cam), onScreen = v.z < 1 && Math.abs(v.x) < 0.95 && v.y < 1.1 && v.y > -0.9;
     if (onScreen) {
       const [x, y] = toScreen(p, cam);
-      cap.className = 'cap' + (KIDS.has(l.who) ? ' kid' : FEM.has(l.who) ? ' f' : '');
+      cap.className = 'cap' + (shadow ? ' shadow' : KIDS.has(l.who) ? ' kid' : FEM.has(l.who) ? ' f' : '');
       if (cap._t !== l.text) { cap.textContent = l.text; cap._t = l.text; }
       const cw = cap.offsetWidth, ch = cap.offsetHeight;
       const cx = clamp(x, cw / 2 + 16, W - cw / 2 - 16);
@@ -96,20 +99,32 @@ function caption(t, cam, heads, fade) {
     }
   }
   if (sub._t !== l.text) { sub.textContent = l.text; sub._t = l.text; }
-  sub.className = l.voice === 'narr' ? 'narr' : off ? 'phone' : ''; sub.style.opacity = o;
+  sub.className = l.voice === 'narr' ? 'narr' : shadow ? 'shadow' : off ? 'phone' : ''; sub.style.opacity = o;
+}
+const esc = x => String(x || '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+function openingHTML(O) {
+  const text = esc(O.text), key = esc(O.key), i = key ? text.indexOf(key) : -1;
+  if (i < 0) return text;
+  return text.slice(0, i) + `<span class="key" style="color:${esc(O.color || '#ff9a3c')}">${key}</span>` + text.slice(i + key.length);
 }
 function sceneAt(t) { for (const s of TL.scenes) if (t >= s.start && t < s.end) return s; return TL.scenes[TL.scenes.length - 1]; }
 const CARD = 0x0b0d14;
 
 window.renderAt = (t) => {
   const s = sceneAt(t);
-  for (const id of ['titleCard', 'endCard', 'paper', 'paperBg', 'phone']) $(id).style.opacity = 0;
+  for (const id of ['titleCard', 'endCard', 'openCard', 'paper', 'paperBg', 'phone']) $(id).style.opacity = 0;
   $('hud').classList.remove('hide'); $('chip').style.opacity = 0;
   let fade = 0;
   const R = { fade: 0, exposure: 1.15, bloom: [0.55, 0.78, 0.5] };
   const mod = MODS[SCENE_MOD[s.name]];
   window.SHOTNAME = ''; window.SHOTEXPLICIT = false;
-  if (s.name === 'title' || s.name === 'endcard') {
+  if (s.name === 'opening') {
+    // the opening card: one narration line on black with one coloured keyword, then the first scene fades in from black
+    const O = TL.opening || {}, el = $('oText');
+    if (el._t !== O.text) { el._t = O.text; el.innerHTML = openingHTML(O); }
+    $('openCard').style.opacity = 1; el.style.opacity = smooth(s.start + 0.3, s.start + 1.1, t) * (1 - smooth(s.end - 0.9, s.end - 0.2, t));
+    renderer.setClearColor(0x000000); renderer.clear(); window.LAST = null; $('hud').classList.add('hide');
+  } else if (s.name === 'title' || s.name === 'endcard') {
     // cards: the canvas is the card background, so the watermark stays in the frame on the cards too
     const card = $(s.name === 'title' ? 'titleCard' : 'endCard'), inner = card.querySelector('.inner');
     card.style.opacity = 1;
@@ -121,6 +136,7 @@ window.renderAt = (t) => {
   } else if (mod) {
     renderer.setClearColor(0x000000);
     const hud = mod.render(t, s.name, R) || {};
+    updateLooks(R.scene, hud.figs || mod.FIGS);   // white figures face their practical light; a white film keeps rooms dark
     if (window.DBG) { R.camera.position.set(...window.DBG.pos); R.camera.lookAt(...window.DBG.look); if (window.DBG.fov) { R.camera.fov = window.DBG.fov; R.camera.updateProjectionMatrix(); } R.camera.updateMatrixWorld(true); R.fade = 0; }
     rp.scene = R.scene; rp.camera = R.camera; window.LAST = { cam: R.camera, scene: R.scene, fade: R.fade || 0, figs: hud.figs || mod.FIGS, props: hud.props || [] };
     renderer.toneMappingExposure = R.exposure; [bloom.strength, bloom.threshold, bloom.radius] = R.bloom; if (window.NOBLOOM) bloom.strength = 0;

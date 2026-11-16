@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/hero.gif" alt="The three sets (living room, motel at night, laundromat) and a 9:16 short" width="100%">
+<img src="docs/hero.gif" alt="Four looks: living room, motel at night, kitchen, and the white look with a shadow self" width="100%">
 
 # Beta Version Silhouette Studio
 
@@ -26,6 +26,19 @@ https://github.com/user-attachments/assets/de534182-9b27-41af-b979-00cb8f546e03
 
 ---
 
+## Start here: no installs
+
+Never used a terminal? Open an AI coding assistant (Claude Code, Codex CLI, Gemini CLI, Antigravity, Cursor) and paste:
+
+```
+Set up this film studio for me: https://github.com/BetaVersionHQ/beta-version-silhouette-studio — download it, install anything that's missing, and make the 10-second test film.
+```
+
+It installs Python, Node and ffmpeg if needed, sets up the studio and makes a test film. More prompts and the list of
+assistants that work: [docs/START_HERE.md](docs/START_HERE.md). The agent follows [AGENTS.md](AGENTS.md).
+
+---
+
 ## What it is
 A small film studio in code. You write the story in one Python file (lines, emotions, marks, date chips). The kit then:
 - **voices** every line with Kokoro-82M (free, local, Apache-2.0),
@@ -37,7 +50,7 @@ A small film studio in code. You write the story in one Python file (lines, emot
 
 No paid APIs, no cloud, no sample packs.
 
-## Quick start (3 commands)
+## Prefer the terminal? (3 commands)
 ```bash
 python kit/setup.py                                # installs everything, detects your render tier
 python kit/new_film.py myfilm --format short       # copies a starter film to films/myfilm
@@ -46,10 +59,11 @@ python kit/make.py films/myfilm all                # build, voice, sound, qa, re
 Needs Python 3.10+, Node 18+ and ffmpeg on PATH. Details and troubleshooting: [SETUP.md](SETUP.md).
 Try `--seconds 10` on the last command for a quick first render.
 
-## With Claude Code
-Copy `skill/` into `~/.claude/skills/silhouette-studio/` (or open this repo in Claude Code) and ask:
-*"Make a 90-second silhouette short about two brothers fixing an old radio."* The skill walks story, build, voice, staging,
-sound, QA and render, and reads the right reference for each step.
+## With an AI assistant
+Any coding agent that can run commands on your computer works: it reads [AGENTS.md](AGENTS.md)
+(Claude Code via CLAUDE.md, Gemini CLI via GEMINI.md, Codex, Antigravity and Cursor via AGENTS.md). Built and tested with
+Claude Code; the others follow the same plain instructions but are not tested yet. In Claude Code the skill loads by itself
+when you open this folder. Then just ask: *"Make a 90-second silhouette short about two brothers fixing an old radio."*
 
 ## Render tiers
 `kit/setup.py` picks the tier by testing what WebGL actually runs on; `--tier` or `TIER=` overrides it.
@@ -70,6 +84,20 @@ The picture is the same on every tier. Voice (Kokoro) runs fine on a CPU: about 
 
 The cameras reframe for the format: in 9:16 speakers are framed head to knees, two-shots become singles and hand-made shots
 can carry their own 9:16 version. Output: H.264 mp4, AAC 192 kbps, loudness -16 LUFS, fast start.
+
+## Looks
+| `film.json` `"look"` | Figures | Rooms |
+|---|---|---|
+| `black` (default) | dark silhouettes with a light rim and glowing eyes | night palettes with one warm practical light |
+| `white` | off-white figures with a soft dark rim, dark dot eyes and brows that change expression, lit by the nearest warm lamp | walls and furniture dimmed to near-black, warm pools of light |
+
+- **Per actor:** `LOOKS = {"ben": "black"}` in `story.py` gives one figure a different look than the film.
+- **Shadow self:** `LOOKS = {"shadow": "shadow"}` makes an actor a solid black figure with a red rim glow and red eyes (a
+  character's darker side, a temptation, a fear). Its lines get red subtitles.
+- **Opening card:** `OPENING = {"text": "Every night ended the same way.", "key": "same way", "color": "#ff9a3c"}` plus a first
+  scene `('opening', None, None, 1.0, [B(2.6)])` shows one narration line on black with the keyword in colour, then fades in.
+- Expressions work in both looks: in a set script `A.brow` (-1 angry .. 1 worried) and `A.lid` (0 open .. 1 heavy).
+  `kit/references/engine-guide.md` has the details. QA runs the same checks on every look.
 
 ## Sets
 | Set | Look |

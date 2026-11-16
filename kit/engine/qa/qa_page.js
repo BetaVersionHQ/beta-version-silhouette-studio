@@ -165,14 +165,16 @@
   }
   // in-world brand: every mesh tagged userData.brand (props.js, brand.js) is projected at the sampled time. It counts as
   // seen when it is in front of the lens, inside the frame, facing the camera (userData.brandN), not hidden behind
-  // solids (3 of 5 rays clear; its own prop never hides it) and at least BRAND_MIN px in both directions on screen.
+  // solids or bodies (3 of 5 rays clear; its own prop never hides it) and at least BRAND_MIN px in both directions on screen.
   const BRAND_MIN = 12;
   const rootOf = o => { for (let p = o; p; p = p.parent) if (p.userData.brandRoot) return p; return o; };
   function checkBrand(L, issues) {
     const cam = L.cam, Wp = window.FORMAT === 'short' ? 720 : 1280, Hp = window.FORMAT === 'short' ? 1280 : 720;
     const marks = []; L.scene.traverse(o => { if (o.isMesh && o.userData.brand && !hidden(o)) marks.push(o); });
     if (!marks.length) return;
-    const sol = solids(L.scene), camDir = cam.getWorldDirection(V(0, 0, 0)), R = V(1, 0, 0).applyQuaternion(cam.quaternion), U = V(0, 1, 0).applyQuaternion(cam.quaternion);
+    // bodies hide prints too (figure materials are shaders, which solids() leaves out): add every visible figure's meshes
+    const sol = solids(L.scene); for (const f of Object.values(L.figs || {})) if (f.g.visible) f.g.traverse(o => { if (o.isMesh && !hidden(o) && !o.userData.brand) sol.push(o); });
+    const camDir = cam.getWorldDirection(V(0, 0, 0)), R = V(1, 0, 0).applyQuaternion(cam.quaternion), U = V(0, 1, 0).applyQuaternion(cam.quaternion);
     const heads = Object.entries(L.figs || {}).filter(([n, f]) => f.g.visible && !f.qaSkip).map(([n, f]) => [n, headBox(cam, f)]).filter(([n, h]) => h.front);
     let best = null;
     for (const m of marks) {
@@ -205,6 +207,25 @@
     }
     if (best) issues.push({ k: 'brandseen', sev: 'info', who: best.name, px: Math.round(best.px), msg: 'brand in view' });
   }
+  // heads stand clear: two actors' head circles overlapping on screen merge into one shape (silhouettes most of all).
+  // Overlap is measured as the shared area over the smaller circle: over 5 % warns, over 50 % fails.
+  function circleOverlap(a, b) {
+    const d = Math.hypot(a[0] - b[0], a[1] - b[1]), r1 = a[2], r2 = b[2], rs = Math.min(r1, r2);
+    if (d >= r1 + r2) return 0; if (d <= Math.abs(r1 - r2)) return 1;
+    const A = r1 * r1 * Math.acos((d * d + r1 * r1 - r2 * r2) / (2 * d * r1)) + r2 * r2 * Math.acos((d * d + r2 * r2 - r1 * r1) / (2 * d * r2))
+      - 0.5 * Math.sqrt((-d + r1 + r2) * (d + r1 - r2) * (d - r1 + r2) * (d + r1 + r2));
+    return A / (Math.PI * rs * rs);
+  }
+  function checkHeads(L, issues) {
+    const Wp = window.FORMAT === 'short' ? 720 : 1280, Hp = window.FORMAT === 'short' ? 1280 : 720, tag = window.SHOTEXPLICIT ? ' (hand-made shot ' + window.SHOTNAME + ')' : '';
+    const hs = Object.entries(L.figs || {}).filter(([n, f]) => f.g.visible && !f.qaSkip).map(([n, f]) => [n, headBox(L.cam, f)])
+      .filter(([n, h]) => h.front && h.b[1] > 0 && h.b[0] < 1 && h.b[3] > 0 && h.b[2] < 1)
+      .map(([n, h]) => [n, [(h.b[0] + h.b[1]) / 2 * Wp, (h.b[2] + h.b[3]) / 2 * Hp, Math.max((h.b[1] - h.b[0]) * Wp, (h.b[3] - h.b[2]) * Hp) / 2]]);
+    for (let i = 0; i < hs.length; i++) for (let j = i + 1; j < hs.length; j++) {
+      const ov = circleOverlap(hs[i][1], hs[j][1]); if (ov <= 0.05) continue;
+      issues.push({ k: 'heads', sev: ov > 0.5 ? 'fail' : 'warn', who: hs[i][0], msg: `${hs[i][0]}'s and ${hs[j][0]}'s heads overlap ${(ov * 100).toFixed(0)} % on screen${tag}: restage so every head stands clear` });
+    }
+  }
   function checkChip(t, issues) {
     const s = window.sceneAt(t); if (!s.chip) return;
     const el = document.getElementById('chip'), want = CAL[s.name];
@@ -216,7 +237,7 @@
       window.NORENDER = 1; const issues = [];
       window.renderAt(t); const L = window.LAST; if (!L) return issues; L.scene.updateMatrixWorld(true); tagFigs(L.figs);
       const stage = L.scene.userData.stage, S = figState(t);
-      checkProps(L, S, issues); checkCam(L, issues); checkSpeaker(t, L, issues); checkChip(t, issues); checkLens(L, issues); checkBrand(L, issues);
+      checkProps(L, S, issues); checkCam(L, issues); checkSpeaker(t, L, issues); checkChip(t, issues); checkLens(L, issues); checkHeads(L, issues); checkBrand(L, issues);
       const s = window.sceneAt(t);
       if (t + 1 / 30 < s.end) { window.renderAt(t + 1 / 30); L.scene.updateMatrixWorld(true); const S2 = figState(t + 1 / 30); checkFigs(t, S, S2, stage, issues); }
       // a skate is a fail only when it lasts: a one-frame slip (a few cm at a step change) that has stopped by the next frame is a warning

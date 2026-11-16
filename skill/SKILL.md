@@ -19,6 +19,10 @@ was detected.
 - `python KIT/new_film.py <name> --format short|long` copies the starter (*The Spare Key*). Rewrite `story.py`: TITLE, CHARS
   (age, gender, accent, temperament), optional KOKORO voices, scenes with beats, marks, sfx cues and lines with emotion
   directions. Update `film.json` (title, tagline, endLine, endMeta, `female` list).
+- Pick the look: `film.json` `"look": "black"` (default silhouettes) or `"white"` (off-white figures with dark eyes and
+  brows in near-black rooms). Optional in `story.py`: `LOOKS = {"who": "black" | "white" | "shadow"}` per actor (`shadow` is
+  the shadow self: black body, red rim, red subtitles) and `OPENING = {"text", "key", "color"}` with an `'opening'` first
+  scene for a narration card on black with one coloured keyword.
 - One feeling, one object that carries it, a last line that lands. Short lines, spoken the way people talk.
 
 ## 2. Build
@@ -38,6 +42,8 @@ gives hummed takes so staging can start; never render those for the user.
 - Props come from the branded prop library (`props.js`, imported through `core.js`): `makePhone` (mark on the back and
   lock screen), `makeMug`, `makeCoffeeCup`, `makeLaptop`, `makeShoppingBag`, `makeBox`, `makeCerealBox`, `makeCan`,
   `makeBottle`, `makeTV`, `makeMagnet`, `makePoster`, `makeSign`, `printOnFigure`. Never build your own phone or mug.
+- Faces act through `A.brow` (-1 angry .. 1 worried) and `A.lid` (0 open .. 1 heavy), set per frame in the set script;
+  in the white look they move the brows and eyelids.
 - Keep at least one readable brand piece per scene in view (QA fails the scene otherwise). The corner watermark is
   automatic and must never sit over a face; move the camera or actor, never the brand.
 

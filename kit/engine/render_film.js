@@ -9,7 +9,13 @@ const NF = Math.ceil((secs ? Math.min(secs, TL.end) : TL.end) * 30), NC = Math.c
 const dir = path.join(film, 'render', 'chunks'), chunk = c => path.join(dir, 'c' + String(c).padStart(4, '0') + '.mp4');
 (async () => {
   fs.mkdirSync(dir, { recursive: true });
-  const stamp = path.join(film, 'render', 'chunks', 'frames.txt'), want = `${NF}`;
+  // finished chunks are kept for a resumed render, but only while the frame count and every source (film timeline and js,
+  // the engine page and modules) are unchanged; any edit since then starts the chunks over
+  const newest = ds => Math.max(0, ...ds.flatMap(d => fs.existsSync(d) ? (fs.statSync(d).isDirectory()
+    ? fs.readdirSync(d).map(f => fs.statSync(path.join(d, f)).mtimeMs) : [fs.statSync(d).mtimeMs]) : []));
+  const src = newest([path.join(film, 'timeline.json'), path.join(film, 'env.json'), path.join(film, 'film.json'), path.join(film, 'js'),
+    path.join(__dirname, 'index.html'), path.join(__dirname, 'js')]);
+  const stamp = path.join(film, 'render', 'chunks', 'frames.txt'), want = `${NF} ${Math.round(src)} x${+process.env.SS_SCALE || 1}`;
   if (!fs.existsSync(stamp) || fs.readFileSync(stamp, 'utf8') !== want) { for (const f of fs.readdirSync(dir)) fs.unlinkSync(path.join(dir, f)); fs.writeFileSync(stamp, want); }
   const F = await openFilm(film);
   console.log('renderer:', F.how, '|', await glName(F.page), '|', F.info.width + 'x' + F.info.height);

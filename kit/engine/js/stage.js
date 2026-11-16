@@ -3,6 +3,7 @@
 import { ASPECT, PORTRAIT, WM, THREE, V, clamp, smooth, lerp, win, SC, TL, linesOf, lineEnd, env, talkW, applyPose, blendPose, standPose, seatPose, walkPose,
   plantFeet, liftFeet, ikLeg, ik, ikWorld, handWorld, blink, rimMaterial, makeFigure, yawQ, roundPath, STAND_HIP } from './core.js';
 import { walkArms, hang, ikW, lerpAngle, yawTo } from './act.js';
+import { lookOf, whiteMaterial, shadowMaterial, applyLook } from './looks.js';
 
 export const S0 = n => SC[n].start, S1 = n => SC[n].end;
 export const angDiff = (a, b) => ((b - a + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
@@ -20,7 +21,9 @@ export class Stage {
   // a seat: hips at (x, z) on a surface of height `top`, facing yaw; standing spot is `front` metres ahead
   seat(name, x, z, top, yaw, front = 0.42) { this.seats[name] = { x, z, top, yaw, front, fx: x + Math.sin(yaw) * front, fz: z + Math.cos(yaw) * front }; return this.seats[name]; }
   fig(name, rim = 0xffe6cc, opts = {}, str = 1.0) {
-    const m = rimMaterial({ rim, power: 5.5, strength: str, lightStr: 0 }); const f = makeFigure(m, opts); f.m = m; f.name = name;
+    // the look comes from film.json "look" and story.py LOOKS (looks.js): black silhouette, white figure or shadow self
+    const look = lookOf(name), m = look === 'white' ? whiteMaterial() : look === 'shadow' ? shadowMaterial() : rimMaterial({ rim, power: 5.5, strength: str, lightStr: 0 });
+    const f = applyLook(makeFigure(m, look === 'black' ? opts : { ...opts, eye: 1 }), look); f.m = m; f.name = name;
     this.scene.add(f.g); this.figs[name] = f; return f;
   }
   // movable props are tracked so QA can check they are held or resting on something (never floating or inside things)
@@ -265,6 +268,8 @@ export class Actor {
     else if (st.mode === 'kneel' || st.trans) { hang(f, 'L', 0.3); hang(f, 'R', 0.3); }
     else { const g = clamp(tk * 3.0), w = Math.sin(t * 1.7 + this.name.length) * 0.5 + 0.5;
       ik(f.armR, V(0.36 - g * 0.06, 0.92 + g * (0.28 + w * 0.12), 0.05 + g * 0.3), V(0.5, -0.4, -0.7)); ik(f.armL, V(-0.36 + g * 0.03 * w, 0.92 + g * 0.08 * w, 0.05 + g * 0.1 * w), V(-0.5, -0.4, -0.7)); }
+    // expression (white figures): a.brow -1 angry .. 1 worried, a.lid 0..1 heavy eyelids; set them from the set module per frame
+    f.brow = this.brow ?? 0; f.lid = this.lid ?? 0;
     blink(f, t, this.name.length * 0.37, this.eyes ?? 1);
     return st;
   }
@@ -397,7 +402,8 @@ export function wideCam(stage, key, spec) {
     for (const o of others) for (const [pp, r] of [[o.head.getWorldPosition(V(0, 0, 0)), 0.36], [o.body.localToWorld(V(0, 1.2, 0)), 0.42]]) {
       const fi = frameInfo(cam, pp, r); if (!fi.front) continue; const vis = !(fi.b[1] < 0 || fi.b[0] > 1 || fi.b[3] < 0 || fi.b[2] > 1);
       if (vis && fi.d < 2.3) { bad += 40; notes.push('fg ' + o.name); }
-      for (const h of heads) { const ti = frameInfo(cam, h, 0.36); const ox = Math.min(ti.b[1], fi.b[1]) - Math.max(ti.b[0], fi.b[0]), oy = Math.min(ti.b[3], fi.b[3]) - Math.max(ti.b[2], fi.b[2]); if (ox > 0 && oy > 0 && fi.d < ti.d) { bad += 40; notes.push('covers'); } }
+      for (const h of heads) { const ti = frameInfo(cam, h, 0.36); const ox = Math.min(ti.b[1], fi.b[1]) - Math.max(ti.b[0], fi.b[0]), oy = Math.min(ti.b[3], fi.b[3]) - Math.max(ti.b[2], fi.b[2]); if (ox > 0 && oy > 0 && fi.d < ti.d) { bad += 40; notes.push('covers'); }
+        else if (r < 0.4 && ox > 0.01 && oy > 0.01) { bad += 30; notes.push('head behind head'); } }   // a head behind the speaker's merges with it
     }
     for (let i = 0; i < F.length; i++) for (let j = 0; j < F.length; j++) { if (i === j) continue; const a = frameInfo(cam, heads[i], 0.36), b = frameInfo(cam, heads[j], 0.36);
       const ox = Math.min(a.b[1], b.b[1]) - Math.max(a.b[0], b.b[0]), oy = Math.min(a.b[3], b.b[3]) - Math.max(a.b[2], b.b[2]); if (ox > 0.02 && oy > 0.02 && a.d < b.d) { bad += 25; notes.push('heads overlap'); } }

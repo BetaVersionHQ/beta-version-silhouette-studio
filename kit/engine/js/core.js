@@ -138,6 +138,7 @@ export function ikWorld(f, side, worldT, pole) {
 export const handWorld = arm => arm.joint.localToWorld(V(0, -B_LEN, 0));
 export function blink(f, t, seed, open = 1) {
   const c = ((t + seed) % 3.7) < 0.12 ? 0.15 : 1;
+  if (f.face) return f.face(open, c);   // looks.js: white eyes and brows, shadow-self red eyes
   for (const e of f.eyes) e.scale.set(1, c * open + (1 - open) * 0.1, 0.5);
   f.eyeMat.color.setScalar(lerp(0.12, f.eyeBase ?? 1, clamp(open * 1.5)));
 }
