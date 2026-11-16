@@ -1,16 +1,20 @@
 <div align="center">
 
+<img src="docs/banner.png" alt="Beta Version Silhouette Studio" width="100%">
+
 <img src="docs/hero.gif" alt="Four looks: living room, motel at night, kitchen, and the white look with a shadow self" width="100%">
 
 # Beta Version Silhouette Studio
 
-**Turn a story into a voiced, scored silhouette animation film (16:9 or 9:16) with code and Claude Code.**
+**Turn a story into a voiced, scored silhouette animation film (16:9 or 9:16). Just ask your AI assistant: no installs, no editing.**
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-3ad6f0?style=for-the-badge)](LICENSE.md)
 [![Claude Code skill](https://img.shields.io/badge/Claude%20Code-skill-d97757?style=for-the-badge)](skill/SKILL.md)
 [![three.js](https://img.shields.io/badge/three.js-0.160-000000?style=for-the-badge&logo=threedotjs&logoColor=white)](https://threejs.org/)
 [![Instagram](https://img.shields.io/badge/Follow-@beta__versionhq-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://www.instagram.com/beta_versionhq/)
 [![YouTube](https://img.shields.io/badge/Subscribe-@BetaVersion__HQ-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/@BetaVersion_HQ)
+[![GitHub stars](https://img.shields.io/github/stars/BetaVersionHQ/beta-version-silhouette-studio?style=for-the-badge&logo=github&color=f5c518)](https://github.com/BetaVersionHQ/beta-version-silhouette-studio/stargazers)
+[![Latest release](https://img.shields.io/github/v/release/BetaVersionHQ/beta-version-silhouette-studio?style=for-the-badge&color=22c55e)](https://github.com/BetaVersionHQ/beta-version-silhouette-studio/releases/latest)
 
 ### **📣 Like it? Follow [@beta_versionhq on Instagram](https://www.instagram.com/beta_versionhq/) and subscribe on [YouTube @BetaVersion_HQ](https://www.youtube.com/@BetaVersion_HQ) for new tools and updates.**
 
@@ -130,6 +134,30 @@ Every film carries the Beta Version wordmark as a small corner watermark, on in-
 a phone's back and lock screen, mugs, cups, laptop lids, bags, boxes, cans, TVs, posters, signs), on the end card and in the
 mp4 metadata. QA fails a scene where no branded prop is in view and warns if one covers a face. It never covers a face or a
 caption. See [NOTICE.md](NOTICE.md).
+
+**⭐ Star the repo** to see new sets, looks, props and fixes as they land. To update, ask your assistant: *"Update the silhouette studio to the latest version."*
+
+## 💬 Ask for something new
+
+Want a place, prop, look, sound or camera move that isn't here? **[Ask for it here](https://github.com/BetaVersionHQ/beta-version-silhouette-studio/issues/new?template=request.yml)**. The requests with the most 👍 get built first, so add a 👍 to the ones you want too.
+
+Something broke? **[Tell me here](https://github.com/BetaVersionHQ/beta-version-silhouette-studio/issues/new?template=bug.yml)**, ask in **[Q&A](https://github.com/BetaVersionHQ/beta-version-silhouette-studio/discussions/categories/q-a)**, or DM me on [Instagram](https://www.instagram.com/beta_versionhq/).
+
+---
+
+## 🙌 Made something? Share it
+
+Post your film in **[Show and tell](https://github.com/BetaVersionHQ/beta-version-silhouette-studio/discussions/categories/show-and-tell)**, or use the **[Share your film](https://github.com/BetaVersionHQ/beta-version-silhouette-studio/issues/new?template=share-your-film.yml)** form. The best ones get featured here.
+
+Add this badge to your video description or your own repo:
+
+[![Made with Beta Version Silhouette Studio](https://img.shields.io/badge/Made%20with-Beta%20Version%20Silhouette%20Studio-3ad6f0?style=for-the-badge)](https://github.com/BetaVersionHQ/beta-version-silhouette-studio)
+
+```markdown
+[![Made with Beta Version Silhouette Studio](https://img.shields.io/badge/Made%20with-Beta%20Version%20Silhouette%20Studio-3ad6f0?style=for-the-badge)](https://github.com/BetaVersionHQ/beta-version-silhouette-studio)
+```
+
+---
 
 ## Credit
 Credit appreciated: "Made with Beta Version Silhouette Studio" + link to this repo. Optional.

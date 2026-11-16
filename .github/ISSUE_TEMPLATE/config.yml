@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Questions and help
+    url: https://github.com/BetaVersionHQ/beta-version-silhouette-studio/discussions/categories/q-a
+    about: Stuck on setup or a film? Ask here.
+  - name: DM on Instagram
+    url: https://www.instagram.com/beta_versionhq/
+    about: Quick questions, or show us what you made.

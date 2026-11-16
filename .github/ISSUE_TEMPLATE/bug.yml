@@ -1,0 +1,23 @@
+name: Something broke
+description: An error, a wrong-looking shot, a voice problem, or a setup step that didn't work.
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you (or your assistant) typed, what you expected, and what you got. Paste the error, or attach a still or films/<name>/qa/report.md.
+    validations:
+      required: true
+  - type: dropdown
+    id: assistant
+    attributes:
+      label: Which assistant?
+      options: [Claude Code, Codex, Gemini CLI, Antigravity, Cursor, None (terminal), Other]
+  - type: input
+    id: setup
+    attributes:
+      label: Your setup
+      description: OS, graphics card, and the tier setup printed (GPU / ANYGPU / CPU).
+      placeholder: Windows 11, NVIDIA RTX 3060, tier GPU

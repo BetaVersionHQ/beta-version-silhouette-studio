@@ -1,0 +1,22 @@
+name: Ask for something new
+description: A place, prop, look, character, sound, camera move or feature you want in the kit.
+title: "[Request] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks! Requests with the most thumbs-up get built first. Add a 👍 to requests you want too.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind of thing?
+      options: [A place / set, A prop or object, A look or character style, An animation or face, A sound or music style, A camera move or effect, A feature or setting, Something else]
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What do you want?
+      description: Describe it, and the film you want it for. A reference picture helps.
+    validations:
+      required: true

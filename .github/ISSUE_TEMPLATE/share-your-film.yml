@@ -1,0 +1,39 @@
+name: Share your film
+description: Show off a film or Short you made with Beta Version Silhouette Studio.
+title: "[Film] "
+labels: ["showcase"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for sharing! Good ones get featured in the README.
+  - type: input
+    id: link
+    attributes:
+      label: Link to your film
+      description: YouTube, Instagram, TikTok, or anywhere people can watch it.
+      placeholder: https://youtube.com/shorts/...
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea or prompt
+      description: What did you type into your assistant?
+    validations:
+      required: true
+  - type: dropdown
+    id: look
+    attributes:
+      label: Which look?
+      options: [Black with glowing eyes, White with shadow self, Both, My own]
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything you changed or learned?
+      description: New sets, props, voices, tweaks, problems you hit.
+  - type: checkboxes
+    id: ok
+    attributes:
+      label: Featuring
+      options:
+        - label: It's OK to feature my film (with credit) in this README.
