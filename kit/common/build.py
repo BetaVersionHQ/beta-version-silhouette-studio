@@ -77,6 +77,7 @@ LOOKS = getattr(st, 'LOOKS', {}) or {}
 bad = {k: v for k, v in LOOKS.items() if v not in ('black', 'white', 'shadow')}
 if bad: raise SystemExit(f'LOOKS: unknown look {bad} (use black, white or shadow)')
 if FILM.get('look', 'black') not in ('black', 'white'): raise SystemExit('film.json "look" must be "black" or "white"')
+if 'watermark' in FILM and not isinstance(FILM['watermark'], bool): raise SystemExit('film.json "watermark" must be true or false')
 OPENING = getattr(st, 'OPENING', None)
 if any(s['name'] == 'opening' for s in scenes) and not (OPENING and OPENING.get('text')):
     raise SystemExit("an 'opening' scene needs OPENING = {'text': ..., 'key': ..., 'color': ...} in story.py")

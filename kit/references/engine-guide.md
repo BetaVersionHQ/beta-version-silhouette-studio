@@ -39,7 +39,7 @@ Brand pieces come from the prop library (`props.js`, re-exported by `core.js`): 
 `makePoster` and `makeSign({lines})`. Custom pieces use `decal`, `badgeTex`, `wordTex`, `printMat`, and must be tagged with
 `tagBrand(mesh)` / `brandRoot(group)` for the QA brand check. The mark is light artwork: straight on dark surfaces, on a dark
 plate on light ones, never stretched or recoloured. The corner watermark
-is drawn into every frame by `main.js` and the camera search keeps heads out from under it.
+is drawn into every frame by `main.js` (film.json `"watermark": false` turns it off) and the camera search keeps heads out from under it.
 
 ## Figures
 Capsule figures with big heads, a rim and eyes. Women: `bun` or `ponytail`. Children: `s` 0.6-0.75.

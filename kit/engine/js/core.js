@@ -11,7 +11,9 @@ export const FORMAT = FILM.format === 'short' ? 'short' : 'long';
 export const W = FORMAT === 'short' ? 720 : 1280, H = FORMAT === 'short' ? 1280 : 720, FPS = 30;
 export const ASPECT = W / H, PORTRAIT = H > W;
 // the corner watermark box in normalised screen coordinates [x0, x1, y0, y1] (y down); cameras and captions keep clear of it
-export const WM = (() => { const w = (PORTRAIT ? 0.12 : 0.1) * W, m = 0.025 * W; return [(W - m - w) / W, (W - m) / W, m / H, (m + w) / H]; })();
+// film.json "watermark": false turns the corner mark off; its box then sits off screen so no check ever meets it
+export const WM_ON = FILM.watermark !== false;
+export const WM = !WM_ON ? [2, 2, 2, 2] : (() => { const w = (PORTRAIT ? 0.12 : 0.1) * W, m = 0.025 * W; return [(W - m - w) / W, (W - m) / W, m / H, (m + w) / H]; })();
 export const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
 export const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a)); return t * t * (3 - 2 * t); };
 export const lerp = (a, b, t) => a + (b - a) * t;

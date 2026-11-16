@@ -21,7 +21,7 @@ file in `js/`. Run it after every change.
 - **slide / speed:** a walk timed from a line instead of from distance. Let the walk take distance / ~1.2 m/s.
 - **heads overlap:** stand people so no head sits behind another from any camera in the scene: offset them sideways (about
   0.8 m or more), mix sitting and standing, or give the shot its own camera; the speaker search avoids it too.
-- **watermark covers a face:** move the camera or the actor; never move or hide the watermark.
+- **watermark covers a face:** move the camera or the actor; never move the watermark (to drop it for a whole film, set film.json `"watermark": false`).
 - **voice fails:** re-run `make.py <film> voice` (Kokoro `--force --only N` redoes single lines).
 
 ## Picture review (the gate cannot see everything)

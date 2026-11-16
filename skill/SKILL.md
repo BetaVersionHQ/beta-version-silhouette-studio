@@ -45,7 +45,7 @@ gives hummed takes so staging can start; never render those for the user.
 - Faces act through `A.brow` (-1 angry .. 1 worried) and `A.lid` (0 open .. 1 heavy), set per frame in the set script;
   in the white look they move the brows and eyelids.
 - Keep at least one readable brand piece per scene in view (QA fails the scene otherwise). The corner watermark is
-  automatic and must never sit over a face; move the camera or actor, never the brand.
+  automatic (the user can ask for it off: set `"watermark": false` in film.json) and must never sit over a face; move the camera or actor, never the brand.
 
 ### Any location
 The kit's sets are starting points, not a limit. When the story needs a bus stop, a hospital corridor or a rooftop, build

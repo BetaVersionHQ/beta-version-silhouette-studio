@@ -10,7 +10,7 @@
 6. **No over-the-shoulder heads filling the frame.** Two people in the open: `whoFrame` singles or a side two-shot.
 7. **Real geometry only.** Doors open before anyone passes; wall objects have depth; nobody walks through furniture.
 8. **Silhouettes need light behind them.** Stage talkers against a window, a doorway, a lamp or a lit sign.
-9. **Captions and the watermark never cover a face.** Move the camera or the actor, never the brand.
+9. **Captions and the watermark never cover a face.** Move the camera or the actor, never the brand (the user may turn the corner mark off: film.json `"watermark": false`).
 10. **QA must PASS before a render**, and the report must be newer than every edit. Read the contact sheets too.
 11. **Test small first:** `--scenes` one scene, `--seconds 10` renders, then the full film once.
 12. **Keep the brand in the world:** at least one readable Beta Version piece (poster, sign, mug, box, phone screen) per set.

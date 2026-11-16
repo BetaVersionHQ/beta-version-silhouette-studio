@@ -135,6 +135,9 @@ a phone's back and lock screen, mugs, cups, laptop lids, bags, boxes, cans, TVs,
 mp4 metadata. QA fails a scene where no branded prop is in view and warns if one covers a face. It never covers a face or a
 caption. See [NOTICE.md](NOTICE.md).
 
+**Don't want the corner mark?** Ask your assistant: *"Remove the Beta Version mark."* It sets `"watermark": false` in the
+film's `film.json`. A credit line is still welcome.
+
 **⭐ Star the repo** to see new sets, looks, props and fixes as they land. To update, ask your assistant: *"Update the silhouette studio to the latest version."*
 
 ## 💬 Ask for something new

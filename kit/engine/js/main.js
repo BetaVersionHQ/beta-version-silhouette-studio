@@ -52,7 +52,7 @@ const filmQuad = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), filmMat); filmQua
 const wmTex = new THREE.Texture(BRAND_IMG.watermark); wmTex.colorSpace = THREE.SRGBColorSpace; wmTex.needsUpdate = true;
 const wmMat = new THREE.MeshBasicMaterial({ map: wmTex, transparent: true, opacity: 0.7, depthTest: false, depthWrite: false, toneMapped: false });
 const wm = new THREE.Mesh(new THREE.PlaneGeometry(WM[1] - WM[0], WM[3] - WM[2]), wmMat);
-wm.position.set((WM[0] + WM[1]) / 2, 1 - (WM[2] + WM[3]) / 2, 0.1); wm.renderOrder = 2; ovScene.add(wm);
+wm.position.set((WM[0] + WM[1]) / 2, 1 - (WM[2] + WM[3]) / 2, 0.1); wm.renderOrder = 2; if (FILM.watermark !== false) ovScene.add(wm);
 function drawOverlay(fade, t) {
   filmMat.uniforms.uFade.value = clamp(fade); filmMat.uniforms.uSeed.value = (t * 977) % 97;
   const ac = renderer.autoClear; renderer.autoClear = false; renderer.setRenderTarget(null);
