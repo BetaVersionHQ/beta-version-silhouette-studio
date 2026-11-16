@@ -3,7 +3,8 @@
   1. dates   common/calcheck.py: chips, weekdays, spoken dates
   2. scenes  engine/qa/qa.js: feet on floors, walk speed 0.6-2.2 m/s, sliding feet, walking into furniture or walls,
              bodies overlapping, floating props, camera inside geometry, speaker hidden, chip vs calendar,
-             someone walking into the lens (head > 45 % of the frame), the watermark over a face
+             someone walking into the lens (head > 45 % of the frame), the watermark over a face,
+             in-world brand: a scene with no brand piece ever in view fails, a brand piece over a face warns
   3. voices  engine/qa/voicecheck.py: missing takes, clipping, dead air, length
   4. --sheets  contact sheets per scene in qa/sheets/ for a picture review
 Writes qa/report.json {pass, fails, warns, items} and qa/report.md. render.py refuses a full render unless pass is true and
@@ -63,7 +64,7 @@ def main():
         if m: rep['items'].append({'area': 'dates', 'sev': m.group(1).lower(), 'msg': m.group(2)})
     print('== scenes')
     code, out = run(['node', os.path.join(ENGINE, 'qa', 'qa.js'), fd, str(step)])
-    print('\n'.join(l for l in out.strip().splitlines()[-3:] if not l.startswith('qa ')))
+    ls = out.strip().splitlines(); print('\n'.join([l for l in ls if l.startswith('brand ')] + ls[-1:]))   # every scene's brand line, then the total
     sr = os.path.join(fd, 'qa', 'scene_report.json')
     if code or not os.path.exists(sr):
         rep['items'].append({'area': 'scene', 'sev': 'fail', 'msg': 'scene QA did not run: ' + out.strip()[-300:]})

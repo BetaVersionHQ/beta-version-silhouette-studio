@@ -3,7 +3,8 @@
 // Kinds: feet (floating or sunk), wall (inside an obstacle or outside the walkable area), overlap (two bodies in one
 // spot), slide (a planted foot skating), prop (floating, or inside a body), cam (inside or touching geometry),
 // speaker (the person talking is hidden behind something), chip (date chip text differs from the calendar), lens (someone
-// fills the frame or walks into the lens), brand (the corner watermark covers a face).
+// fills the frame or walks into the lens), brand (the corner watermark covers a face, or an in-world brand piece covers
+// one). brandseen reports the biggest in-world brand piece in view (qa.js turns a scene without one into a fail).
 (() => {
   const T = window.THREE, V = (x, y, z) => new T.Vector3(x, y, z);
   const rc = new T.Raycaster();
@@ -162,6 +163,48 @@
         if (ox > 0 && oy > 0 && ox * oy > 0.15 * (hb.b[1] - hb.b[0]) * hh) issues.push({ k: 'brand', sev: 'fail', who: n, msg: `the watermark covers ${n}'s face${tag}` }); }
     }
   }
+  // in-world brand: every mesh tagged userData.brand (props.js, brand.js) is projected at the sampled time. It counts as
+  // seen when it is in front of the lens, inside the frame, facing the camera (userData.brandN), not hidden behind
+  // solids (3 of 5 rays clear; its own prop never hides it) and at least BRAND_MIN px in both directions on screen.
+  const BRAND_MIN = 12;
+  const rootOf = o => { for (let p = o; p; p = p.parent) if (p.userData.brandRoot) return p; return o; };
+  function checkBrand(L, issues) {
+    const cam = L.cam, Wp = window.FORMAT === 'short' ? 720 : 1280, Hp = window.FORMAT === 'short' ? 1280 : 720;
+    const marks = []; L.scene.traverse(o => { if (o.isMesh && o.userData.brand && !hidden(o)) marks.push(o); });
+    if (!marks.length) return;
+    const sol = solids(L.scene), camDir = cam.getWorldDirection(V(0, 0, 0)), R = V(1, 0, 0).applyQuaternion(cam.quaternion), U = V(0, 1, 0).applyQuaternion(cam.quaternion);
+    const heads = Object.entries(L.figs || {}).filter(([n, f]) => f.g.visible && !f.qaSkip).map(([n, f]) => [n, headBox(cam, f)]).filter(([n, h]) => h.front);
+    let best = null;
+    for (const m of marks) {
+      m.updateMatrixWorld(true); const bb = new T.Box3().setFromObject(m); if (bb.isEmpty()) continue;
+      const c = bb.getCenter(V(0, 0, 0)), toCam = cam.position.clone().sub(c), dist = toCam.length();
+      if (c.clone().sub(cam.position).dot(camDir) < 0.05) continue;
+      if (m.userData.brandN) { const n = V(...m.userData.brandN).transformDirection(m.matrixWorld); if (n.dot(toCam.clone().normalize()) < 0.2) continue; }
+      let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+      for (let i = 0; i < 8; i++) { const p = V(i & 1 ? bb.max.x : bb.min.x, i & 2 ? bb.max.y : bb.min.y, i & 4 ? bb.max.z : bb.min.z).project(cam);
+        x0 = Math.min(x0, (p.x + 1) / 2); x1 = Math.max(x1, (p.x + 1) / 2); y0 = Math.min(y0, (1 - p.y) / 2); y1 = Math.max(y1, (1 - p.y) / 2); }
+      const cx0 = Math.max(0, x0), cx1 = Math.min(1, x1), cy0 = Math.max(0, y0), cy1 = Math.min(1, y1);
+      if (cx1 <= cx0 || cy1 <= cy0 || (cx1 - cx0) < 0.6 * (x1 - x0) || (cy1 - cy0) < 0.6 * (y1 - y0)) continue;   // mostly off frame
+      const px = Math.min((cx1 - cx0) * Wp, (cy1 - cy0) * Hp);
+      // occlusion: rays to the centre and four points around it; the brand's own prop and transparent things never block
+      const root = rootOf(m), own = new Set(); root.traverse(o => own.add(o));
+      const ext = bb.getSize(V(0, 0, 0)).length() * 0.25; let clear = 0;
+      for (const [a, b] of [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const p = c.clone().addScaledVector(R, a * ext).addScaledVector(U, b * ext), d = p.clone().sub(cam.position), dd = d.length(); rc.set(cam.position, d.normalize()); rc.far = dd - 0.02;
+        if (!rc.intersectObjects(sol, false).some(h => !own.has(h.object))) clear++;
+      }
+      if (clear < 3) continue;
+      const name = root.name || m.name || 'brand piece';
+      if (px >= BRAND_MIN && (!best || px > best.px)) best = { px, name };
+      // a brand piece in front of a face, covering a good part of it
+      for (const [n, hb] of heads) {
+        if (dist > hb.d - 0.3) continue;
+        const ox = Math.min(x1, hb.b[1]) - Math.max(x0, hb.b[0]), oy = Math.min(y1, hb.b[3]) - Math.max(y0, hb.b[2]);
+        if (ox > 0 && oy > 0 && ox * oy > 0.25 * (hb.b[1] - hb.b[0]) * (hb.b[3] - hb.b[2])) issues.push({ k: 'brand', sev: 'warn', who: n, msg: `the ${name} covers ${n}'s face` });
+      }
+    }
+    if (best) issues.push({ k: 'brandseen', sev: 'info', who: best.name, px: Math.round(best.px), msg: 'brand in view' });
+  }
   function checkChip(t, issues) {
     const s = window.sceneAt(t); if (!s.chip) return;
     const el = document.getElementById('chip'), want = CAL[s.name];
@@ -173,7 +216,7 @@
       window.NORENDER = 1; const issues = [];
       window.renderAt(t); const L = window.LAST; if (!L) return issues; L.scene.updateMatrixWorld(true); tagFigs(L.figs);
       const stage = L.scene.userData.stage, S = figState(t);
-      checkProps(L, S, issues); checkCam(L, issues); checkSpeaker(t, L, issues); checkChip(t, issues); checkLens(L, issues);
+      checkProps(L, S, issues); checkCam(L, issues); checkSpeaker(t, L, issues); checkChip(t, issues); checkLens(L, issues); checkBrand(L, issues);
       const s = window.sceneAt(t);
       if (t + 1 / 30 < s.end) { window.renderAt(t + 1 / 30); L.scene.updateMatrixWorld(true); const S2 = figState(t + 1 / 30); checkFigs(t, S, S2, stage, issues); }
       // a skate is a fail only when it lasts: a one-frame slip (a few cm at a step change) that has stopped by the next frame is a warning

@@ -2,7 +2,7 @@
 // left wall, a folding table in the middle, plastic chairs under the shop window, a glass door to the street, a change
 // machine and the lit Beta Version price board on the right wall (brand in the world). lights('day'|'dusk'|'night').
 // Useful spots: TABLE, seats ch_-2.6 / ch_-1.8 / ch_-1 (chairs facing the room), washer_top, DOOR_OUT / DOOR_IN.
-import { THREE, rng, mat, box, cyl, add, textTex, makeSign, makeBrandBox } from './core.js';
+import { THREE, rng, mat, box, cyl, add, textTex, makeSign, makeBox, makeCoffeeCup } from './core.js';
 import { Stage } from './stage.js';
 import { glowSprite } from './util.js';
 
@@ -67,14 +67,15 @@ for (const z of [-2.6, -1.8, -1.0, -0.2, 0.6, 1.4]) { washer(-XW + 0.4, 0, z, Ma
 ST.block(-XW + 0.4, -0.6, 0.75, 4.8, 0, 'dryers');
 // spin the drums: call from render with the time (faster for 'spin', slow tumble otherwise)
 export function machines(t, k = 1) { DRUMS.forEach((d, i) => { const c = d.userData.clothes; if (!c) return; const a = t * (2.2 + (i % 3) * 0.6) * k + i; c.position.x = 0.04 * Math.cos(a); c.position.y = 0.45 + 0.05 * Math.sin(a) - 0.05; c.rotation.z = a; }); }
-// the folding table with towel stacks, a basket, and a Beta Version box of soap on the table
+// the folding table with towel stacks, a basket, a Beta Version box of soap and a takeaway cup on the table
 export const TABLE = { x: 0.6, z: 0.2, w: 2.4, d: 0.9, top: 0.9 };
 { add(sc, box(TABLE.w, 0.06, TABLE.d, mat(0xe8e2d0, 0.5), 0.02), TABLE.x, TABLE.top - 0.03, TABLE.z, { cast: true });
   add(sc, box(TABLE.w - 0.1, 0.04, TABLE.d - 0.1, mat(0x8a8e90, 0.4, { metalness: 0.5 })), TABLE.x, 0.2, TABLE.z);
   for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) add(sc, cyl(0.025, 0.025, TABLE.top - 0.06, mat(0x8a8e90, 0.4, { metalness: 0.6 }), 10), TABLE.x + dx * (TABLE.w / 2 - 0.08), (TABLE.top - 0.06) / 2, TABLE.z + dz * (TABLE.d / 2 - 0.08));
   const tc = [0xf4f0e8, 0x8ab8d8, 0xe8a8a8, 0xf4f0e8, 0xc8d8a0];
   for (let s = 0; s < 2; s++) for (let i = 0; i < 4 + s; i++) add(sc, box(0.42, 0.06, 0.32, mat(tc[(i + s) % 5], 0.95), 0.025), TABLE.x + 0.4 + s * 0.48, TABLE.top + 0.03 + i * 0.06, TABLE.z - 0.15);
-  const soap = makeBrandBox(0.34, 0.24, 0.22); add(sc, soap, TABLE.x - 0.55, TABLE.top, TABLE.z + 0.1); soap.rotation.y = 0.2;
+  const soap = makeBox({ w: 0.34, h: 0.24, d: 0.22 }); add(sc, soap, TABLE.x - 0.55, TABLE.top, TABLE.z + 0.1); soap.rotation.y = 0.2;
+  const cup = makeCoffeeCup(); add(sc, cup, TABLE.x - 0.05, TABLE.top, TABLE.z + 0.28); cup.rotation.y = 0.15;   // someone's takeaway coffee
   const basket = new THREE.Group(); basket.position.set(2.7, 0, -2.6); ST.blockC(2.7, -2.6, 0.3, 'basket'); sc.add(basket);
   add(basket, cyl(0.26, 0.22, 0.3, mat(0x5a8ac8, 0.6), 24), 0, 0.15, 0, { cast: true }); add(basket, new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2), mat(0xe8e0d0, 0.95)), 0, 0.26, 0);
   ST.block(TABLE.x, TABLE.z, TABLE.w + 0.1, TABLE.d + 0.1, 0, 'table'); }

@@ -77,26 +77,31 @@ can carry their own 9:16 version. Output: H.264 mp4, AAC 192 kbps, loudness -16 
 | `room` | a living room at night: sofa, lamp, rain-dark window, door to a lit hallway |
 | `motel` | a roadside motel lot at night: neon sign, sodium lamp, ice machine, desert and stars |
 | `laundromat` | a coin laundromat: washers and dryers, folding table, glass door to the street |
+| `kitchen` | a kitchen at night: counter, fridge, table and chairs, window on the city, pendant lamp, hall doorway |
 
-Each set exports its doors, seats, props and light modes for staging. New sets follow the same pattern
-([engine guide](kit/references/engine-guide.md)). The starter film, *The Spare Key*, uses all three.
+**Any location can be built.** These sets are starting points: [Build any location](kit/references/new-set.md) is the recipe
+(plan, build checklist, exports, brand pieces, test loop); the kitchen was built from it. Each set exports its doors, seats,
+props and light modes for staging ([engine guide](kit/references/engine-guide.md)). The starter film, *The Spare Key*, uses
+the first three; `python kit/new_film.py myfilm --starter kitchen-demo` starts a 12-second kitchen scene.
 
 ## Layout
 ```
 kit/
   setup.py  make.py  new_film.py  render.py  snap.py   entry points
   common/       story build, date checks, placeholder voices
-  engine/       three.js page, staging, camera, QA, renderer, procedural sound
-  sets/         room, motel, laundromat
-  starters/     long and short starter films
+  engine/       three.js page, staging, camera, branded prop library, QA, renderer, procedural sound
+  sets/         room, motel, laundromat, kitchen
+  starters/     long and short starter films, kitchen-demo
   voice/        Kokoro step
-  references/   engine guide, story, sound, QA, top 12 rules
+  references/   engine guide, new set recipe, story, sound, QA, top 12 rules
 skill/SKILL.md  Claude Code skill
 ```
 
 ## Branding
-Every film carries the Beta Version wordmark as a small corner watermark, on in-world props (a poster, a sign, a mug, a box),
-on the end card and in the mp4 metadata. It never covers a face or a caption. See [NOTICE.md](NOTICE.md).
+Every film carries the Beta Version wordmark as a small corner watermark, on in-world props like a retail brand (the mark on
+a phone's back and lock screen, mugs, cups, laptop lids, bags, boxes, cans, TVs, posters, signs), on the end card and in the
+mp4 metadata. QA fails a scene where no branded prop is in view and warns if one covers a face. It never covers a face or a
+caption. See [NOTICE.md](NOTICE.md).
 
 ## Credit
 Credit appreciated: "Made with Beta Version Silhouette Studio" + link to this repo. Optional.

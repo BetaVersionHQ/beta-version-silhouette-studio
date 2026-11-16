@@ -2,8 +2,8 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 export { THREE, RoundedBoxGeometry };
-import { phoneScreenTex } from './brand.js';
-export { IMG as BRAND_IMG, makePoster, makeBrandMug, makeBrandBox, makeSign, plateTex, markTex, phoneScreenTex } from './brand.js';
+export { IMG as BRAND_IMG, makePoster, makeSign, plateTex, markTex, phoneScreenTex, tagBrand, brandRoot } from './brand.js';
+export { makePhone, makeMug, makeBrandMug, makeCoffeeCup, makeLaptop, makeShoppingBag, makeBox, makeBrandBox, makeCerealBox, makeCan, makeBottle, makeTV, makeMagnet, printOnFigure, decal, badgeTex, wordTex, printMat } from './props.js';
 
 // Frame format comes from the film's film.json: "format": "long" (16:9, 1280x720) or "short" (9:16, 720x1280). 30 fps.
 export const FILM = await (await fetch('film.json')).json();
@@ -252,37 +252,7 @@ export function sitUpPose(f, hipX, bedTop, z, recline = 0.32, head = [0.3, 0, 0]
 }
 
 // ---------- props ----------
-// a phone; its screen shows the Beta Version lock screen when it glows
-export function makePhone(glow = 0xd6e4ff) {
-  const g = new THREE.Group();
-  g.add(new THREE.Mesh(new RoundedBoxGeometry(0.075, 0.15, 0.012, 3, 0.01), basic(0x0a0a0c)));
-  const scr = new THREE.Mesh(new THREE.PlaneGeometry(0.064, 0.135), new THREE.MeshBasicMaterial({ map: phoneScreenTex() })); scr.position.z = 0.007; g.add(scr); g.scr = scr;
-  g.setGlow = on => scr.material.color.set(on ? 0xffffff : 0x15171c);
-  return g;
-}
-export function makeMug(color = 0xf2ebe2) {
-  const g = new THREE.Group();
-  const m = mat(color, 0.35);
-  const c = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.045, 0.11, 20, 1, true), m); c.position.y = 0.055; g.add(c);
-  const bottom = new THREE.Mesh(new THREE.CircleGeometry(0.045, 20), m); bottom.rotation.x = -Math.PI / 2; bottom.position.y = 0.002; g.add(bottom);
-  const coffee = new THREE.Mesh(new THREE.CircleGeometry(0.047, 20), mat(0x3a2414, 0.3)); coffee.rotation.x = -Math.PI / 2; coffee.position.y = 0.09; g.add(coffee);
-  const handle = new THREE.Mesh(new THREE.TorusGeometry(0.03, 0.009, 8, 16, Math.PI), m); handle.position.set(0.05, 0.055, 0); handle.rotation.z = -Math.PI / 2; g.add(handle);
-  g.traverse(o => { if (o.isMesh) o.castShadow = true; });
-  return g;
-}
-export function makeLaptop(scale = 1) {
-  const g = new THREE.Group(); g.scale.setScalar(scale);
-  const alu = mat(0x9aa0a8, 0.35);
-  const base = new THREE.Mesh(new RoundedBoxGeometry(0.36, 0.016, 0.24, 2, 0.006), alu); base.position.y = 0.008; g.add(base);
-  const lid = new THREE.Group(); lid.position.set(0, 0.016, 0.12); g.add(lid);
-  const back = new THREE.Mesh(new RoundedBoxGeometry(0.36, 0.23, 0.01, 2, 0.006), alu); back.position.y = 0.115; lid.add(back);
-  const scr = new THREE.Mesh(new THREE.PlaneGeometry(0.33, 0.2), basic(0xcfe0ff)); scr.position.set(0, 0.115, -0.006); scr.rotation.y = Math.PI; lid.add(scr);
-  g.lid = lid; g.scr = scr;
-  g.setOpen = k => { lid.rotation.x = lerp(-Math.PI / 2 + 0.04, 0.28, k); scr.material.color.set(new THREE.Color(0x15171c).lerp(new THREE.Color(0xcfe0ff), clamp((k - 0.5) * 2))); };
-  g.setOpen(1);
-  g.traverse(o => { if (o.isMesh) o.castShadow = true; });
-  return g;
-}
+// branded everyday props (phone, mug, cups, laptop, bags, boxes, drinks, TV, magnet, shirt print) come from props.js
 // soft steam puffs above a mug
 export function makeSteam() {
   const tex = textTex((x, w, h) => { const g = x.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2); g.addColorStop(0, 'rgba(255,255,255,.55)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); }, 64, 64);

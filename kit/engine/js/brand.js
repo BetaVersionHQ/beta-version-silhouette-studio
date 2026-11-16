@@ -1,5 +1,6 @@
 // Beta Version brand pieces for every film: the corner watermark (drawn into each frame by main.js), the card credits and
-// in-world props (a framed poster, a mug, a box, a lit sign, a phone lock screen). Images load from brand/*.png and fall
+// the wall pieces (a framed poster, a lit sign or menu board, the phone lock screen). Everyday props that carry the mark
+// like a retail brand (phone, mug, cups, laptop, bags, boxes, cans, TV, magnets, shirt prints) live in props.js. Images load from brand/*.png and fall
 // back to the copies embedded in brand_data.js, so the brand is always there.
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
@@ -15,17 +16,17 @@ export const IMG = {
 export const DATA = { WATERMARK, WORDMARK, MARK };
 try { await document.fonts.load('600 40px Inter'); await document.fonts.load('400 40px Inter'); } catch (e) { /* fonts are optional for the textures */ }
 
-const PLATE = '#0d111c', CYAN = '#3be3ff';
-function tex(draw, w, h) {
+export const PLATE = '#0d111c', CYAN = '#3be3ff';
+export function tex(draw, w, h) {
   const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
 }
 // the wordmark is light lettering: it always sits on a dark plate, scaled uniformly (never stretched or recoloured)
-function drawWordmark(x, cx, cy, maxW, maxH) {
+export function drawWordmark(x, cx, cy, maxW, maxH) {
   const im = IMG.wordmark, k = Math.min(maxW / im.width, maxH / im.height), w = im.width * k, h = im.height * k;
   x.drawImage(im, cx - w / 2, cy - h / 2, w, h);
 }
-function roundRect(x, a, b, w, h, r) { x.beginPath(); x.moveTo(a + r, b); x.arcTo(a + w, b, a + w, b + h, r); x.arcTo(a + w, b + h, a, b + h, r); x.arcTo(a, b + h, a, b, r); x.arcTo(a, b, a + w, b, r); x.closePath(); }
+export function roundRect(x, a, b, w, h, r) { x.beginPath(); x.moveTo(a + r, b); x.arcTo(a + w, b, a + w, b + h, r); x.arcTo(a + w, b + h, a, b + h, r); x.arcTo(a, b + h, a, b, r); x.arcTo(a, b, a + w, b, r); x.closePath(); }
 
 // plate texture: dark plate, the wordmark, an optional line of small text under it
 export function plateTex({ w = 1024, h = 512, sub = '', bg = PLATE, border = true } = {}) {
@@ -40,6 +41,10 @@ export function markTex({ size = 256, bg = null } = {}) {
   return tex((x, W, H) => { if (bg) { x.fillStyle = bg; x.fillRect(0, 0, W, H); } x.drawImage(IMG.mark, W * 0.06, H * 0.06, W * 0.88, H * 0.88); }, size, size);
 }
 
+// every brand surface is tagged for the QA brand check: userData.brand (it shows the mark), brandN (the local direction it
+// faces), and its prop group is the brandRoot (the prop's own body never counts as hiding its print)
+export function tagBrand(m, n = [0, 0, 1]) { m.userData.brand = true; m.userData.brandN = n; return m; }
+export const brandRoot = (g, name) => { g.userData.brandRoot = true; if (name) g.name = name; return g; };
 const std = (c, r = 0.6, extra = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: r, ...extra });
 const rbox = (w, h, d, m, r = 0.01) => new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 3, Math.min(r, w / 3, h / 3, d / 3)), m);
 
@@ -54,34 +59,10 @@ export function makePoster({ w = 1.1, h = 0.72, frame = 0x1c1a18, sub = 'SILHOUE
   const mat_ = new THREE.Mesh(new THREE.PlaneGeometry(w - 2 * b, h - 2 * b), std(0xe9e4da, 0.9)); mat_.position.z = 0.014; g.add(mat_);
   const pw = w - 2 * b - 0.08, ph = h - 2 * b - 0.08;
   const print = new THREE.Mesh(new THREE.PlaneGeometry(pw, ph), new THREE.MeshStandardMaterial({ map: plateTex({ w: 1024, h: Math.round(1024 * ph / pw), sub }), roughness: 0.55, emissive: 0xffffff, emissiveIntensity: 0.12, emissiveMap: null }));
-  print.material.emissiveMap = print.material.map; print.position.z = 0.016; g.add(print);
+  print.material.emissiveMap = print.material.map; print.position.z = 0.016; g.add(tagBrand(print));
   const glass = new THREE.Mesh(new THREE.PlaneGeometry(w - 2 * b, h - 2 * b), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.05, metalness: 0.1, transparent: true, opacity: 0.06, depthWrite: false }));
   glass.position.z = d - 0.008; glass.userData.camSkip = true; g.add(glass);
-  g.name = 'beta version poster'; return g;
-}
-// a mug with the mark printed on its side (the print faces +z); base at y = 0
-export function makeBrandMug(color = 0xf2ebe2) {
-  const g = new THREE.Group(), m = std(color, 0.35);
-  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.045, 0.11, 48, 1, true), m); body.position.y = 0.055; g.add(body);
-  const inner = new THREE.Mesh(new THREE.CylinderGeometry(0.046, 0.042, 0.108, 48, 1, true), std(color, 0.4, { side: THREE.BackSide })); inner.position.y = 0.056; g.add(inner);
-  const bottom = new THREE.Mesh(new THREE.CircleGeometry(0.045, 40), m); bottom.rotation.x = -Math.PI / 2; bottom.position.y = 0.002; g.add(bottom);
-  const coffee = new THREE.Mesh(new THREE.CircleGeometry(0.045, 40), std(0x3a2414, 0.3)); coffee.rotation.x = -Math.PI / 2; coffee.position.y = 0.09; g.add(coffee);
-  const handle = new THREE.Mesh(new THREE.TorusGeometry(0.03, 0.009, 12, 24, Math.PI), m); handle.position.set(-0.05, 0.055, 0); handle.rotation.z = Math.PI / 2; g.add(handle);
-  // the print: a band of the cylinder facing +z (theta 0 is +z in three.js)
-  const t = markTex({ size: 256, bg: '#0d111c' });
-  const print = new THREE.Mesh(new THREE.CylinderGeometry(0.0503, 0.0475, 0.055, 32, 1, true, -0.55, 1.1), new THREE.MeshStandardMaterial({ map: t, roughness: 0.4 }));
-  print.position.y = 0.055; g.add(print);
-  g.traverse(o => { if (o.isMesh) o.castShadow = true; }); g.name = 'beta version mug'; return g;
-}
-// a cardboard box with the brand label on its front (+z) and lid; base at y = 0
-export function makeBrandBox(w = 0.42, h = 0.3, d = 0.32) {
-  const g = new THREE.Group(), kraft = std(0xb08a5a, 0.95);
-  const b = rbox(w, h, d, kraft, 0.008); b.position.y = h / 2; b.castShadow = true; b.receiveShadow = true; g.add(b);
-  const tape = new THREE.Mesh(new THREE.PlaneGeometry(0.06, d), std(0xc8b48a, 0.6)); tape.rotation.x = -Math.PI / 2; tape.position.set(0, h + 0.001, 0); g.add(tape);
-  const lw = w * 0.8, lh = lw * 0.45;
-  const label = new THREE.Mesh(new THREE.PlaneGeometry(lw, lh), new THREE.MeshStandardMaterial({ map: plateTex({ w: 512, h: 230, border: false }), roughness: 0.7 }));
-  label.position.set(0, h * 0.52, d / 2 + 0.002); g.add(label);
-  g.name = 'beta version box'; return g;
+  return brandRoot(g, 'beta version poster');
 }
 // a lit sign box: frame with depth and a glowing face with the wordmark (shop sign, wall sign, menu board header).
 // Faces +z, back at z = 0, centred on y. `lines` adds a list under the logo (a menu or price board).
@@ -99,8 +80,8 @@ export function makeSign({ w = 2.0, h = 0.7, depth = 0.12, sub = '', lines = nul
       x.fillStyle = '#e9edf5'; x.textAlign = 'left'; x.fillText(a, W * 0.1, y); x.fillStyle = CYAN; x.textAlign = 'right'; x.fillText(b, W * 0.9, y); });
   }, 1024, th) : plateTex({ w: 1024, h: Math.round(1024 * h / w), sub, border: true });
   const face = new THREE.Mesh(new THREE.PlaneGeometry(w - 0.06, h - 0.06), new THREE.MeshBasicMaterial({ map: t, color: new THREE.Color(glow, glow, glow) }));
-  face.position.z = depth + 0.003; face.userData.camSkip = true; g.add(face); g.face = face;
-  g.name = 'beta version sign'; return g;
+  face.position.z = depth + 0.003; face.userData.camSkip = true; g.add(tagBrand(face)); g.face = face;
+  return brandRoot(g, 'beta version sign');
 }
 // the phone lock screen: night gradient, the clock, the mark in the middle
 export function phoneScreenTex(time = '9:41') {

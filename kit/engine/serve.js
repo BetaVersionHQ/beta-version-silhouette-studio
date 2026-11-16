@@ -1,6 +1,6 @@
 // Shared by every page runner (render, QA, footsteps, snapshots): a static server for one film folder and a browser
 // launcher that follows the machine tier (kit/tier.json, or the TIER environment variable).
-//   film folder first, then the engine (index.html, js/core|stage|act|main|brand.js), then kit/sets (world modules),
+//   film folder first, then the engine (index.html, js/core|stage|act|main|brand|props.js), then kit/sets (world modules),
 //   node_modules and brand/ from the engine.
 const http = require('http'), fs = require('fs'), path = require('path');
 const ENGINE = __dirname, KIT = path.join(__dirname, '..');

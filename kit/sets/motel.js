@@ -2,7 +2,7 @@
 // office at the +x end, an ice machine, a sodium lamp over the lot, the desert and a starry sky. The tall roadside sign
 // carries the MOTEL neon and a lit Beta Version sign box under it (brand in the world).
 // Useful spots: ROOM_DOORS (x of each door, z = 0), LOT (an open patch of the lot), ICE, SIGN.
-import { THREE, V, rng, mat, box, cyl, add, textTex, makeSign } from './core.js';
+import { THREE, V, rng, mat, box, cyl, add, textTex, makeSign, makeCan } from './core.js';
 import { Stage } from './stage.js';
 import { makeSky, glowSprite, sandTex, makeSage, makePole } from './util.js';
 
@@ -43,6 +43,8 @@ const ROOMS = [];
   add(sc, box(0.8, 1.5, 0.7, mat(0xd8dce0, 0.4, { metalness: 0.3 }), 0.04), 6.2, 0.75, 0.45, { cast: true });
   add(sc, new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.22), new THREE.MeshBasicMaterial({ map: textTex((c, w, h) => { c.fillStyle = '#2a5aa8'; c.fillRect(0, 0, w, h); c.fillStyle = '#fff'; c.font = 'bold 54px Inter'; c.textAlign = 'center'; c.fillText('ICE', w / 2, 60); }, 192, 72) })), 6.2, 1.25, 0.81); }
 export const ICE = [6.2, 0.45];
+// a branded soda can someone left on top of the ice machine (props.js)
+export const CAN = makeCan(); add(sc, CAN, 6.0, 1.5, 0.62); CAN.rotation.y = 0.3;
 ST.block((ROW.x0 + OFF.x1) / 2, -ROW.d / 2, OFF.x1 - ROW.x0, ROW.d, 0, 'motel'); ST.block(ICE[0], ICE[1], 0.9, 0.8, 0, 'ice machine');
 for (let x = ROW.x0 + 0.4; x <= OFF.x1; x += 3.2) ST.blockC(x, WALK - 0.15, 0.12, 'post');
 // the roadside sign: MOTEL neon on top, the lit Beta Version sign box under it, VACANCY at the bottom

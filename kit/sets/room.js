@@ -2,8 +2,8 @@
 // Pattern used by every set: one module builds the Stage, its geometry, lights, seats, footprints and figures;
 // a film's js/set_room.js imports it and stages the scenes. Copy and rename it to make a new location.
 // Brand in the world: the framed Beta Version poster on the back wall, the mug on the coffee table, the box by the wall,
-// the phone lock screen.
-import { THREE, V, box, cyl, add, mat, makePhone, makePoster, makeBrandMug, makeBrandBox } from './core.js';
+// the phone (logo on its back, lock screen on its screen). All props come from the branded library (props.js).
+import { THREE, V, box, cyl, add, mat, makePhone, makePoster, makeMug, makeBox } from './core.js';
 import { Stage } from './stage.js';
 
 export const ST = new Stage('room', { bounds: [-4.5, 6.2, -3.5, 4.3], fov: 36 });
@@ -54,8 +54,8 @@ ST.blockC(0.3, -3.0, 0.3, 'lamp');
 
 // brand: poster (real frame depth) on the back wall above the sofa, mug on the table, a shipping box by the wall
 export const POSTER = makePoster({ w: 1.15, h: 0.75 }); add(sc, POSTER, -1.2, 1.95, -3.495);
-export const MUG = makeBrandMug(); add(sc, MUG, -0.85, 0.36, -0.78); MUG.rotation.y = 0.25;
-export const BOX = makeBrandBox(0.5, 0.36, 0.38); add(sc, BOX, 3.7, 0, -2.9); BOX.rotation.y = -0.35; ST.block(3.7, -2.9, 0.6, 0.5, -0.35, 'box');
+export const MUG = makeMug(); add(sc, MUG, -0.85, 0.36, -0.78); MUG.rotation.y = 0.25;
+export const BOX = makeBox({ w: 0.5, h: 0.36, d: 0.38 }); add(sc, BOX, 3.7, 0, -2.9); BOX.rotation.y = -0.35; ST.block(3.7, -2.9, 0.6, 0.5, -0.35, 'box');
 const posterLight = new THREE.SpotLight(0xffe6c8, 6, 4.5, 0.5, 0.6, 1.5); posterLight.position.set(-1.2, 2.9, -2.2);
 posterLight.target.position.set(-1.2, 1.95, -3.5); sc.add(posterLight, posterLight.target);
 

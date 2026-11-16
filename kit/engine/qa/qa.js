@@ -25,6 +25,16 @@ process.chdir(film);
       if (++n % 200 === 0) process.stdout.write(`qa ${s.name} ${t.toFixed(0)}s\n`);
     }
   }
+  // brand: every staged scene shows an in-world brand piece at least once (12 px+ on screen), and once readable (36 px+)
+  const seen = {};
+  for (const it of raw) if (it.k === 'brandseen') { const b = seen[it.scene]; if (!b || it.px > b.px) seen[it.scene] = it; }
+  for (let i = raw.length - 1; i >= 0; i--) if (raw[i].k === 'brandseen') raw.splice(i, 1);
+  for (const s of TL.scenes) {
+    if (!s.set || (only && !only.has(s.name))) continue; const b = seen[s.name];
+    if (!b) raw.push({ k: 'brand', sev: 'fail', who: s.name, scene: s.name, t: s.start, msg: `no in-world brand piece is ever in view in scene ${s.name} (stage a branded prop from props.js where the camera sees it)` });
+    else if (b.px < 36) raw.push({ k: 'brand', sev: 'warn', who: s.name, scene: s.name, t: b.t, msg: `the biggest brand piece in scene ${s.name} is only ${b.px} px (${b.who}); show one larger once (36 px+)` });
+    else console.log(`brand ${s.name}: ${b.who} ${b.px} px at ${b.t} s`);
+  }
   // merge: the same message in the same scene within 1 s becomes one range
   const merged = [];
   const keyOf = it => it.scene + '|' + it.k + '|' + it.msg.replace(/[\d.]+ (m\/s|m)/g, '#');

@@ -14,8 +14,8 @@ const Bn = new Actor(ST, 'ben', F.ben, { x: DOOR_AT[0], z: DOOR_AT[1], yaw: -Mat
   ['walk', m('door') + 1.2, DOOR_IN, { direct: true, speed: 0.9 }],            // waits outside until the door is mostly open
   ['face', m('ben_in') + 1.35, 'ana', { dur: 0.8 }],                          // stays in the doorway and turns to her
 ]);
-// her phone lies on the coffee table, screen up, lock screen on
-PHONE.position.set(-1.5, 0.367, -0.82); PHONE.rotation.set(-Math.PI / 2, 0, 0.4); PHONE.setGlow(true);
+// her phone lies on the coffee table, screen up, lock screen on (props.js phone: lay(x, tableTop, z, yaw, faceDown))
+PHONE.lay(-1.5, 0.36, -0.82, 0.4); PHONE.setGlow(true);
 function pose(t) {
   setDoor(smooth(m('door'), m('door') + 1.4, t));
   A.look = F.ben.g.visible ? F.ben.head.getWorldPosition(V(0, 0, 0)) : null; A.lookK = 0.7; A.update(t);

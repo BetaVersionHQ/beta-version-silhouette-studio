@@ -16,23 +16,29 @@ are replaced by singles, and hand-made shots open their lens (`portraitFov`). A 
 `{ name, pos, look, fov, pos2, short: { pos, look, fov, pos2 } }`. Always snapshot both if you support both.
 
 ## Module pattern
-- **World module** (`kit/sets/room.js`, `motel.js`, `laundromat.js`): `export const ST = new Stage(name, {bounds:[x0,x1,z0,z1]})`,
+- **World module** (`kit/sets/room.js`, `motel.js`, `laundromat.js`, `kitchen.js`): `export const ST = new Stage(name, {bounds:[x0,x1,z0,z1]})`,
   geometry, lights, `ST.block()` / `ST.blockC()` footprints for everything people walk around, `ST.seat()` seats, figures
   `F = {name: ST.fig(name, rimColor, {bun|ponytail, s}, strength)}`, tracked props `ST.track(mesh, name)`, `only(...names)`.
 - **Set module** (the film's `js/set_<set>.js`): `Actor`s with scripts, a `pose(t)`, a shot list, and
   `export function render(t, sname, R)` returning `{heads: {who: headPivot}}` and filling `R.exposure`,
   `R.bloom = [strength, threshold, radius]`, `R.scene`, `R.camera`, `R.fade`. Also `export const FIGS` (footsteps and QA use it).
-- A new location: copy a world module to `kit/sets/<name>.js` (or into the film's `js/`), then write `js/set_<name>.js`.
+- A new location: follow `new-set.md` (Build any location) to write `kit/sets/<name>.js` (or one in the film's `js/`),
+  then write `js/set_<name>.js`.
 
 ## Sets in the kit
 | Set | What it is | Brand in the world | Useful exports |
 |---|---|---|---|
 | `room` | living room at night: sofa, armchair, coffee table, lamp, window, door to a lit hallway | framed poster above the sofa, mug and phone on the table, box by the wall | `DOOR_AT`, `DOOR_IN`, `setDoor(k)`, seats `sofaL` `sofaR` `chair`, `PHONE`, `LAMP` |
 | `motel` | roadside motel lot at night: room row, walkway, office, ice machine, sodium lamp, desert, stars | lit sign box under the MOTEL neon on the roadside sign | `ROOM_DOORS`, `ICE`, `SIGN`, `night(t)` |
-| `laundromat` | coin laundromat: washers, dryers, folding table, chairs, glass door to the street | lit price board on the right wall, soap box on the table | `TABLE`, seats `ch_-2.6` `ch_-1.8` `ch_-1` `washer_top`, `DOOR_OUT`, `DOOR_IN`, `setDoor(k)`, `lights(mode)`, `machines(t)` |
+| `laundromat` | coin laundromat: washers, dryers, folding table, chairs, glass door to the street | lit price board on the right wall, soap box on the table, coffee cup | `TABLE`, seats `ch_-2.6` `ch_-1.8` `ch_-1` `washer_top`, `DOOR_OUT`, `DOOR_IN`, `setDoor(k)`, `lights(mode)`, `machines(t)` |
+| `kitchen` | kitchen at night: counter with sink and hob, upper cabinets, fridge, table and three chairs, window on the city, pendant lamp, doorway to a lit hall | poster, mugs and cereal box on the counter, fridge magnet, shopping bag, phone face down on the table | `COUNTER`, `COUNTER_AT`, `TABLE`, seats `chair_back` `chair_left` `chair_right`, `FRIDGE`, `PHONE`, `MUGS`, `PENDANT`, `HALL`, `DOOR_IN`, `lights(mode)` |
 
-Brand pieces for new sets come from `core.js`: `makePoster`, `makeBrandMug`, `makeBrandBox`, `makeSign({lines})`,
-`plateTex`, `markTex`. The wordmark always sits on a dark plate and is never stretched or recoloured. The corner watermark
+Brand pieces come from the prop library (`props.js`, re-exported by `core.js`): `makePhone` (back logo + lock screen;
+`lay(x, top, z, yaw, faceDown)`, `setGlow(on)`), `makeMug`, `makeCoffeeCup`, `makeLaptop` (`setOpen(k)`), `makeShoppingBag`,
+`makeBox`, `makeCerealBox`, `makeCan`, `makeBottle`, `makeTV` (`setOn(k)`), `makeMagnet`, `printOnFigure(fig, {where})`, plus
+`makePoster` and `makeSign({lines})`. Custom pieces use `decal`, `badgeTex`, `wordTex`, `printMat`, and must be tagged with
+`tagBrand(mesh)` / `brandRoot(group)` for the QA brand check. The mark is light artwork: straight on dark surfaces, on a dark
+plate on light ones, never stretched or recoloured. The corner watermark
 is drawn into every frame by `main.js` and the camera search keeps heads out from under it.
 
 ## Figures

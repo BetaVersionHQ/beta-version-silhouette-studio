@@ -31,12 +31,20 @@ few takes; respell words that come out wrong and redo them with
 gives hummed takes so staging can start; never render those for the user.
 
 ## 4. Sets and staging -> read `references/engine-guide.md`
-- Pick a set per scene (`room`, `motel`, `laundromat`) or make a new world module from one of them.
+- Pick a set per scene (`room`, `motel`, `laundromat`, `kitchen`), or build the place the story needs (next section).
 - Write `js/set_<set>.js` per set: actors with scripts hung on marks and line times, a shot list (`dialogueCuts` plus
   hand-made wides with a `short:` version for 9:16), `render()` and `FIGS`.
 - Snapshot every hand-made shot: `python KIT/snap.py <film> t1,t2`. Look at the stills at small size.
-- Keep at least one readable brand piece per set in view once (poster, sign, mug, box, phone screen). The corner
-  watermark is automatic and must never sit over a face; move the camera or actor, never the brand.
+- Props come from the branded prop library (`props.js`, imported through `core.js`): `makePhone` (mark on the back and
+  lock screen), `makeMug`, `makeCoffeeCup`, `makeLaptop`, `makeShoppingBag`, `makeBox`, `makeCerealBox`, `makeCan`,
+  `makeBottle`, `makeTV`, `makeMagnet`, `makePoster`, `makeSign`, `printOnFigure`. Never build your own phone or mug.
+- Keep at least one readable brand piece per scene in view (QA fails the scene otherwise). The corner watermark is
+  automatic and must never sit over a face; move the camera or actor, never the brand.
+
+### Any location
+The kit's sets are starting points, not a limit. When the story needs a bus stop, a hospital corridor or a rooftop, build
+it as a new world module with `references/new-set.md` (plan, build checklist, exports, at least 2 library brand pieces with
+one readable in a wide, test loop). `kit/sets/kitchen.js` and the `kitchen-demo` starter were built from it.
 
 ## 5. Sound -> read `references/sound.md`
 Edit `audio/sound.py`: rooms, a handler for every `X('cue')`, footstep surfaces per set, ambience beds, one score motif.
