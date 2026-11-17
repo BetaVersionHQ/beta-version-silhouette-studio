@@ -30,6 +30,20 @@ https://github.com/user-attachments/assets/de534182-9b27-41af-b979-00cb8f546e03
 
 ---
 
+## 📺 Watch the full walkthrough
+
+<div align="center">
+
+<a href="https://youtu.be/2lWpsqjfau4" title="Make Animated Films Like This for Free (Beginner Setup, No Coding)">
+  <img src="https://img.youtube.com/vi/2lWpsqjfau4/maxresdefault.jpg" alt="Watch the Silhouette Studio walkthrough on YouTube" width="85%">
+</a>
+
+**▶️ [Make Animated Films Like This for Free (Beginner Setup, No Coding)](https://youtu.be/2lWpsqjfau4)**: setup and a full film, start to finish.
+
+</div>
+
+---
+
 ## Start here: no installs
 
 Never used a terminal? Open an AI coding assistant (Claude Code, Codex CLI, Gemini CLI, Antigravity, Cursor) and paste:
